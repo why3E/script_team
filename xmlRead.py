@@ -152,5 +152,5 @@ class xmlRead:
 
 # fetcher = xmlRead()
 # performances = fetcher.fetch_and_parse_show_data(stdate='20250101', eddate='20250102', rows=10000, cpage=1)
-# places = fetcher.fetch_and_parse_place_data(mt10id='FC001431')
-# details = fetcher.fetch_and_parse_show_detail_data("PF132236")
+# details = fetcher.fetch_and_parse_show_detail_data('PF132236')
+# places = fetcher.fetch_and_parse_place_data('FC001431')
