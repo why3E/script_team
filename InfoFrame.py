@@ -11,6 +11,7 @@ from selenium.webdriver.chrome.service import Service as ChromeService
 from webdriver_manager.chrome import ChromeDriverManager
 import time
 
+Facilities = ['restaurant', 'cafe', 'store', 'nolibang', 'suyu', 'parkbarrier', 'restbarrier', 'runwbarrier', 'elevbarrier', 'parkinglot']
 
 class InfoFrame(Frame):
     def __init__(self, main_frame):
@@ -130,12 +131,15 @@ class ShowInfoFrame(InfoFrame):
 
             place_info = PlaceInfoFrame(place_info_frame)
             place_info.pack(side=LEFT, fill=BOTH, expand=True)
-            place_info.setInfo(self.place_id)
-
+            # place_info.setInfo(self.place_id)
+            place_info.setInfo('FC001247')  # 테스트
+            
 
 class PlaceInfoFrame(InfoFrame):
     def __init__(self, parent):
         super().__init__(parent)
+
+        self.status = True  # True : 공연 장소 정보, False : 편의 시설 정보
 
         self.toggle_button = Button(self.sub_frame1, command=self.toggleInfo)
         self.toggle_button.grid(row=0, column=2, sticky="nsew")
@@ -149,12 +153,17 @@ class PlaceInfoFrame(InfoFrame):
         self.getInfo(id)
 
         for k, v in self.data.items():
-            if k == 'la':
-                self.latitutde = v
-            elif k == 'lo':
-                self.longitude = v
-            else:
-                self.information.insert(END, k + ' : ' + str(v))
+            if k not in Facilities:
+                if k == 'la':
+                    self.latitutde = v
+                elif k == 'lo':
+                    self.longitude = v
+                if k == 'mt13s':
+                    for mt13d in v:
+                        for mt13k, mt13v in mt13d.items():
+                            self.information.insert(END, mt13k + ' : ' + mt13v)
+                else:
+                    self.information.insert(END, k + ' : ' + str(v))
 
         map_osm = folium.Map(location=[self.latitutde, self.longitude], zoom_start=10)
         folium.Marker([self.latitutde, self.longitude]).add_to(map_osm)
@@ -182,4 +191,19 @@ class PlaceInfoFrame(InfoFrame):
         driver.quit()
 
     def toggleInfo(self):
-        pass
+        self.information.delete(0, END)
+
+        self.status = not self.status
+
+        for k, v in self.data.items():
+            if self.status:
+                if k not in Facilities:
+                    if k == 'mt13s':
+                        for mt13d in v:
+                            for mt13k, mt13v in mt13d.items():
+                                self.information.insert(END, mt13k + ' : ' + mt13v)
+                    else:
+                        self.information.insert(END, k + ' : ' + str(v))
+            else:
+                if k in Facilities:
+                    self.information.insert(END, k + ' : ' + str(v))

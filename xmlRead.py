@@ -76,15 +76,20 @@ class xmlRead:
                 "runwbarrier": db_elem.findtext("runwbarrier"),
                 "elevbarrier": db_elem.findtext("elevbarrier"),
                 "parkinglot": db_elem.findtext("parkinglot"),
-                "prfplcnm": db_elem.findtext("prfplcnm"),
-                "mt13id": db_elem.findtext("mt13id"),
-                "seatscale": db_elem.findtext("seatscale"),
-                "stageorchat": db_elem.findtext("stageorchat"),
-                "stagepracat": db_elem.findtext("stagepracat"),
-                "stagedresat": db_elem.findtext("stagedresat"),
-                "stageoutdrat": db_elem.findtext("stageoutdrat"),
-                "disabledseatscale": db_elem.findtext("disabledseatscale"),
-                "stagearea": db_elem.findtext("stagearea")
+                "mt13s": [
+                    {
+                        "prfplcnm": mt13.findtext("prfplcnm") if mt13.find('prfplcnm') is not None else '',
+                        "mt13id": mt13.findtext("mt13id") if mt13.find('mt13id') is not None else '',
+                        "seatscale": mt13.findtext("seatscale") if mt13.find('seatscale') is not None else '',
+                        "stageorchat": mt13.findtext("stageorchat") if mt13.find('stageorchat') is not None else '',
+                        "stagepracat": mt13.findtext("stagepracat") if mt13.find('stagepracat') is not None else '',
+                        "stagedresat": mt13.findtext("stagedresat") if mt13.find('stagedresat') is not None else '',
+                        "stageoutdrat": mt13.findtext("stageoutdrat") if mt13.find('stageoutdrat') is not None else '',
+                        "disabledseatscale": mt13.findtext("disabledseatscale") if mt13.find('disabledseatscale') is not None else '',
+                        "stagearea": mt13.findtext("stagearea") if mt13.find('stagearea') is not None else ''
+                    }
+                    for mt13 in db_elem.findall('.//mt13')
+                ]
             }
             performances.append(performance_info)
         return performances
