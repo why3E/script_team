@@ -5,10 +5,10 @@ import calendar
 class Calender:
     def __init__(self, parent):
         self.date_selector_frame = Frame(parent)
-        self.date_selector_frame.pack(side=LEFT, padx=20, pady=10)
+        self.date_selector_frame.pack(side=LEFT, pady=10)
 
-        self.selected_date_label = Label(self.date_selector_frame, width=10, text="시작일: 없음", font=("Arial", 10))
-        self.selected_date_label.pack(side=LEFT, padx=10)
+        self.selected_date_label = Label(self.date_selector_frame, text="시작일: 없음", font=("Arial", 10))
+        self.selected_date_label.pack(side=LEFT)
 
         select_date_button = Button(self.date_selector_frame, text="날짜 선택", command=lambda: self.open_date_popup())
         select_date_button.pack(side=LEFT)
