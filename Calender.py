@@ -83,7 +83,7 @@ class Calender:
 
     def create_day_button(self, parent, day):
         day_button = Button(
-            parent, text=day.day,
+            parent, text=day.day,#
             width=4, height=2,  # 픽셀 단위로 버튼 크기 지정
             state=NORMAL if day.month == self.month else DISABLED,
             command=self.create_day_button_command(day)
@@ -102,12 +102,12 @@ class Calender:
 
     def select_date(self, top):
         try:
-            selected_date = f"{self.day.year}-{self.day.month:02}-{self.day.day:02}"
+            selected_date = f"{self.day.year}-{self.day.month:02}-{self.day.day:02}" #
             self.selected_date_label.config(text=f"{selected_date}")
 
             self.year = self.day.year
             self.month = self.day.month
-            self.day = self.day.day
+            self.day = self.day.day #
 
         except Exception as e:
             self.selected_date_label.config(text="시작일: 없음")

@@ -27,6 +27,8 @@ class FavoriteFrame(Frame):
         self.from_calender = Calender(self.sub_frame_top)
         self.to_calender = Calender(self.sub_frame_top)
 
+        Calender.day
+
     def show(self):
         self.pack(side=RIGHT, fill=BOTH, expand=True)
 

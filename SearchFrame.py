@@ -1,6 +1,6 @@
 from tkinter import *
 from Calender import Calender
-
+from xmlRead import *
 
 class SearchFrame(Frame):
     def __init__(self, parent, main_frame):
@@ -17,7 +17,9 @@ class SearchFrame(Frame):
         self.label2 = Label(self.sub_frame2, text="서브 프레임 2", font=("Arial", 16))
 
         self.sub_frame1.pack(side=LEFT, fill=BOTH)
+
         self.sub_frame2.pack(side=LEFT, fill=BOTH, expand=True)
+
         self.label1.pack(pady=10)
         self.label2.pack(pady=10)
 
