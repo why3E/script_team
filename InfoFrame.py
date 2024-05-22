@@ -4,6 +4,12 @@ from io import BytesIO
 import urllib
 import urllib.request
 from PIL import Image, ImageTk
+import folium
+import os
+from selenium import webdriver  # pip install selenium webdriver-manager
+from selenium.webdriver.chrome.service import Service as ChromeService
+from webdriver_manager.chrome import ChromeDriverManager
+import time
 
 
 class InfoFrame(Frame):
@@ -38,7 +44,7 @@ class InfoFrame(Frame):
         self.sub_frame3.grid_columnconfigure(0, weight=1)
 
     def sendEmail(self):
-        self.setInfo()  # 테스트
+        self.setInfo('PF132236')  # 테스트
 
     def addRemoveFavorite(self):
         pass
@@ -53,6 +59,8 @@ class InfoFrame(Frame):
 class ShowInfoFrame(InfoFrame):
     def __init__(self, parent):
         super().__init__(parent)
+
+        self.place_id = None
 
         Button(self.sub_frame1, command=self.showPlaceInfo).grid(row=0, column=2, sticky="nsew")
 
@@ -79,9 +87,17 @@ class ShowInfoFrame(InfoFrame):
     def getInfo(self, id):
         fetcher = xmlRead()
 
-        data = fetcher.fetch_and_parse_show_detail_data(id)[0]
+        self.data = fetcher.fetch_and_parse_show_detail_data(id)[0]
 
-        for k, v in data.items():
+    def setInfo(self, id):
+        self.posters.clear()
+        self.urls.delete(0, END)
+        self.place_id = None
+        self.information.delete(0, END)
+
+        self.getInfo(id)
+
+        for k, v in self.data.items():
             if k == 'styurls':
                 for url in v:
                     with urllib.request.urlopen(url) as u:
@@ -95,14 +111,9 @@ class ShowInfoFrame(InfoFrame):
                 for url in v:
                     self.urls.insert(END, url['relateurl'])
             else:
+                if k == 'mt10id':
+                    self.place_id = v
                 self.information.insert(END, k + ' : ' + str(v))
-
-    def setInfo(self):
-        self.posters.clear()
-        self.urls.delete(0, END)
-        self.information.delete(0, END)
-
-        self.getInfo('PF132236')
 
         loc = 0
         for poster in self.posters:
@@ -112,12 +123,14 @@ class ShowInfoFrame(InfoFrame):
         self.poster.config(scrollregion=self.poster.bbox(ALL))
 
     def showPlaceInfo(self):
-        place_info_frame = Toplevel()
-        place_info_frame.geometry("600x700")
-        place_info_frame.title("공연 장소 정보")
+        if self.place_id:
+            place_info_frame = Toplevel()
+            place_info_frame.geometry("600x700")
+            place_info_frame.title("공연 장소 정보")
 
-        place_info = PlaceInfoFrame(place_info_frame)
-        place_info.pack(side=LEFT, fill=BOTH, expand=True)
+            place_info = PlaceInfoFrame(place_info_frame)
+            place_info.pack(side=LEFT, fill=BOTH, expand=True)
+            place_info.setInfo(self.place_id)
 
 
 class PlaceInfoFrame(InfoFrame):
@@ -128,10 +141,45 @@ class PlaceInfoFrame(InfoFrame):
         self.toggle_button.grid(row=0, column=2, sticky="nsew")
 
     def getInfo(self, id):
-        pass
+        fetcher = xmlRead()
 
-    def showInfo(self):
-        pass
+        self.data = fetcher.fetch_and_parse_place_data(id)[0]
+
+    def setInfo(self, id):
+        self.getInfo(id)
+
+        for k, v in self.data.items():
+            if k == 'la':
+                self.latitutde = v
+            elif k == 'lo':
+                self.longitude = v
+            else:
+                self.information.insert(END, k + ' : ' + str(v))
+
+        map_osm = folium.Map(location=[self.latitutde, self.longitude], zoom_start=10)
+        folium.Marker([self.latitutde, self.longitude]).add_to(map_osm)
+        map_osm.save('osm.html')
+        self.save_map_as_image('osm.html', 'osm.png')
+        map_image = Image.open('osm.png')
+        map_photo = ImageTk.PhotoImage(map_image)
+
+        self.map = Canvas(self.sub_frame3)
+        self.map.create_image(300, 80, image=map_photo)
+        self.map.image_names = map_photo
+        self.map.grid(row=0, column=0, sticky="nsew")
+
+    def save_map_as_image(self, map_file, output_file):
+        options = webdriver.ChromeOptions()
+        options.add_argument('--headless')
+        options.add_argument('--disable-gpu')
+        options.add_argument('window-size=1024x768')
+        driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=options)
+
+        driver.get('file://' + os.path.realpath(map_file))
+        time.sleep(2.5)  # 지도 로딩 시간
+
+        driver.save_screenshot(output_file)
+        driver.quit()
 
     def toggleInfo(self):
         pass

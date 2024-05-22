@@ -2,8 +2,8 @@ from tkinter import *
 from SearchFrame import SearchFrame
 from FavoriteFrame import FavoriteFrame
 from GraphFrame import GraphFrame
-
 import xml.etree.ElementTree as ET
+import os
 
 class MainGUI:
     def __init__(self):
@@ -38,6 +38,10 @@ class MainGUI:
         self.show_search_frame()  # 초기 화면을 검색 프레임으로 설정
 
         self.window.mainloop()
+
+    def __del__(self):
+        os.remove('osm.html')
+        os.remove('osm.png')
 
     def create_button_with_label(self, parent, image, text, row, command):
         frame = Frame(parent)
