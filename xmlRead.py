@@ -1,6 +1,7 @@
 import requests
 import xml.etree.ElementTree as ET
-import time
+
+
 class xmlRead:
     def __init__(self):
         self.api_key = '7c1a4e6d58d34c01b1aeacb1b685df78'
@@ -15,7 +16,6 @@ class xmlRead:
             xml_data = response.text
         else:
             raise Exception(f"Error fetching data: {response.status_code}")
-
 
         # XML 파싱 시작
         root = ET.fromstring(xml_data)
@@ -39,13 +39,8 @@ class xmlRead:
         return performances
 
 
-# 클래스 선언
 fetcher = xmlRead()
-sttime = time.time()
-# 데이터 가져오기 및 파싱
+
 performances = fetcher.fetch_and_parse_data(stdate='20250101', eddate='20250102', rows=10000, cpage=1)
 
-edtime = time.time()
 print(len(performances))
-print(edtime - sttime)
-# 추출된 공연 정보 출력

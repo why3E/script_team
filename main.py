@@ -25,10 +25,6 @@ class MainGUI:
         self.favorite_frame = FavoriteFrame(self.window, self)
         self.graph_frame = GraphFrame(self.window, self)
 
-        self.search_frame.create()
-        self.favorite_frame.create()
-        self.graph_frame.create()
-
         self.button_image_size = 2
         self.image1 = PhotoImage(file="image/search.png").subsample(self.button_image_size, self.button_image_size)
         self.image2 = PhotoImage(file="image/star.png").subsample(self.button_image_size, self.button_image_size)

@@ -10,12 +10,8 @@ class GraphFrame(Frame):
         self.month = None
         self.day = None
 
-    def create(self):
         self.sub_frame1 = Frame(self, bg='pink')
-        self.label1 = Label(self.sub_frame1, text="서브 프레임 1", font=("Arial", 16))
-
         self.sub_frame1.pack(side=LEFT, fill=BOTH, expand=True)
-        self.label1.pack(pady=10)
 
         self.sub_frame_top = Frame(self.sub_frame1, bg="orange")
         self.sub_frame_top.pack(side=TOP, anchor=N, fill=X, expand=True)

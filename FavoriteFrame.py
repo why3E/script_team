@@ -10,24 +10,17 @@ class FavoriteFrame(Frame):
         self.month = None
         self.day = None
 
-    def create(self):
         self.sub_frame1 = Frame(self, bg='dim gray')
-        self.sub_frame2 = Frame(self, bg='light blue')
-        self.label1 = Label(self.sub_frame1, text="서브 프레임 1", font=("Arial", 16))
-        self.label2 = Label(self.sub_frame2, text="서브 프레임 2", font=("Arial", 16))
-
         self.sub_frame1.pack(side=LEFT, fill=BOTH)
-        self.sub_frame2.pack(side=LEFT, fill=BOTH, expand=True)
-        self.label1.pack(pady=10)
-        self.label2.pack(pady=10)
 
         self.sub_frame_top = Frame(self.sub_frame1, bg="orange")
         self.sub_frame_top.pack(side=TOP, anchor=N, fill=X)
 
+        self.sub_frame2 = Frame(self, bg='light blue')
+        self.sub_frame2.pack(side=LEFT, fill=BOTH, expand=True)
+
         self.from_calender = Calender(self.sub_frame_top)
         self.to_calender = Calender(self.sub_frame_top)
-
-        Calender.day
 
     def show(self):
         self.pack(side=RIGHT, fill=BOTH, expand=True)
