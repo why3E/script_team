@@ -4,6 +4,7 @@ from FavoriteFrame import FavoriteFrame
 from GraphFrame import GraphFrame
 import xml.etree.ElementTree as ET
 import os
+import sys
 
 class MainGUI:
     def __init__(self):
@@ -12,6 +13,7 @@ class MainGUI:
 
         self.window = Tk()
         self.window.title("공연 보러 가자")
+        self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
         self.window.geometry(f"{self.window_width}x{self.window_height}")
 
         self.frame = Frame(self.window, bg='dim gray')
@@ -39,11 +41,12 @@ class MainGUI:
 
         self.window.mainloop()
 
-    def __del__(self):
+    def on_closing(self):
         if os.path.exists('osm.html'):
             os.remove('osm.html')
         if os.path.exists('osm.png'):
             os.remove('osm.png')
+        sys.exit(0)
 
     def create_button_with_label(self, parent, image, text, row, command):
         frame = Frame(parent)

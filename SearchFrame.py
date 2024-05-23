@@ -13,15 +13,19 @@ class SearchFrame(Frame):
         self.day = None
 
         self.sub_frame1 = Frame(self, bg='pink')
-        self.sub_frame1.pack(side=LEFT, fill=BOTH)
+        self.sub_frame1.grid(row=0, column=0, sticky='nsew')
 
         self.sub_frame2 = ShowInfoFrame(self)
-        self.sub_frame2.pack(side=LEFT, padx=10, pady=10, fill=BOTH, expand=True)
+        self.sub_frame2.grid(row=0, column=1, sticky='nsew')
 
         self.sub_frame_top = Frame(self.sub_frame1, bg="orange")
         self.sub_frame_top.pack(side=TOP, anchor=N, fill=X)
         self.from_calender = Calender(self.sub_frame_top)
         self.to_calender = Calender(self.sub_frame_top)
+
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(0, weight=2)
+        self.grid_columnconfigure(1, weight=3)
 
     def show(self):
         self.pack(side=RIGHT, fill=BOTH, expand=True)

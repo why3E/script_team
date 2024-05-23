@@ -68,13 +68,15 @@ class ShowInfoFrame(InfoFrame):
         super().__init__(parent)
 
         self.place_id = None
+        self.data = None
 
         Button(self.sub_frame1, command=self.showPlaceInfo).grid(row=0, column=2, sticky="nsew")
 
-        self.posters = []
+        self.poster_refs = []
         self.poster = Canvas(self.sub_frame2)
         self.poster.grid_propagate(False)
         self.poster.grid(row=0, column=1, sticky="nsew")
+        self.poster.bind('<Configure>', self.on_resize)
 
         self.poster_yscroll = Scrollbar(self.poster, orient='vertical', command=self.poster.yview)
         self.poster_yscroll.pack(side="right", fill=Y)
@@ -87,11 +89,12 @@ class ShowInfoFrame(InfoFrame):
     def getInfo(self, id):
         self.place_id = None
         self.informations.clear()
-        self.posters.clear()
+        self.poster_refs.clear()
         self.urls.clear()
 
         fetcher = xmlRead()
         self.data = fetcher.fetch_and_parse_show_detail_data(id)[0]
+        self.images = []
 
         for k, v in self.data.items():
             if k == 'styurls':
@@ -99,11 +102,12 @@ class ShowInfoFrame(InfoFrame):
                     with urllib.request.urlopen(url) as u:
                         raw_data = u.read()
                     im = Image.open(BytesIO(raw_data))
+                    self.images.append(im)
                     im = im.resize(
                         (self.poster.winfo_width() - 19, (self.poster.winfo_width() - 19) * im.height // im.width))
                     image = ImageTk.PhotoImage(im)
 
-                    self.posters.append(image)
+                    self.poster_refs.append(image)
             elif k == 'relates':
                 for url in v:
                     self.urls.append(
@@ -125,13 +129,6 @@ class ShowInfoFrame(InfoFrame):
                                          font=('arial', 10, 'bold'))
         self.information.config(scrollregion=self.information.bbox(ALL))
 
-        loc = 0
-        for p in self.posters:
-            self.poster.create_image(0, loc, anchor=NW, image=p)
-            self.poster.image_names = p
-            loc += (self.poster.winfo_width() - 19) * p.height() // p.width()
-        self.poster.config(scrollregion=self.poster.bbox(ALL))
-
         r = 0
         for t in self.urls:
             t[0].grid(row=r, column=0, padx=2, pady=2, sticky='nsew')
@@ -139,6 +136,23 @@ class ShowInfoFrame(InfoFrame):
             t[1].bind("<Button-1>", self.open_url(t[1].cget('text')))
             self.sub_frame3.grid_rowconfigure(r, weight=1)
             r += 1
+
+    def on_resize(self, event):
+        if not self.data:
+            return
+
+        self.poster.delete("all")
+        self.poster_refs.clear()
+
+        loc = 0
+        for image in self.images:
+            im = image.resize(
+                (self.poster.winfo_width() - 19, (self.poster.winfo_width() - 19) * image.height // image.width))
+            image = ImageTk.PhotoImage(im)
+            self.poster.create_image(0, loc, anchor=NW, image=image)
+            self.poster_refs.append(image)
+            loc += (self.poster.winfo_width() - 19) * image.height() // image.width()
+        self.poster.config(scrollregion=self.poster.bbox(ALL))
 
     def open_url(self, url):
         def callback(event):
@@ -221,8 +235,8 @@ class PlaceInfoFrame(InfoFrame):
         else:
             self.drawStatistics()
 
-        # if self.map.get_coordinate() != (self.latitude, self.longitude):
-        #     self.map.show_map(self.sub_frame3, self.latitude, self.longitude)
+        if self.map.get_coordinate() != (self.latitude, self.longitude):
+            self.map.show_map(self.sub_frame3, self.latitude, self.longitude)
 
     def toggleInfo(self):
         self.status = not self.status
