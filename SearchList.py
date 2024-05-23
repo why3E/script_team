@@ -1,7 +1,10 @@
 from tkinter import *
 from Calender import Calender
 from xmlRead import xmlRead
-
+from io import BytesIO
+import urllib
+import urllib.request
+from PIL import Image,ImageTk
 
 class SearchListFrame(Frame):
     def __init__(self, main_frame):
@@ -51,6 +54,7 @@ class SearchListFrame(Frame):
         eddate = f"{self.to_calender.year}-{self.to_calender.month:02}-{self.to_calender.day:02}"
         data = xmlRead()
         dataList = data.fetch_and_parse_show_data(stdate, eddate, 10, 1)
+        self.canvas.delete("all")
 
         list = ['poster','prfnm', 'genrenm', 'fcltynm', 'prfstate']
         for row in range(10):
@@ -124,36 +128,31 @@ class SearchListFrame(Frame):
     def setDataLog(self):
         # 캔버스 생성
         self.canvas = Canvas(self.bottom_frame_second)
+        self.canvas.size
         self.canvas.pack(side=LEFT, fill=BOTH, expand=True)
 
         # 수직 스크롤바 생성 및 캔버스와 연결
-        canvas_scrollbar = Scrollbar(self.bottom_frame_second, orient='vertical', command=self.canvas.yview)
-        canvas_scrollbar.pack(side=RIGHT, fill='y')
-        self.canvas.configure(yscrollcommand=canvas_scrollbar.set)
+        vscrollbar = Scrollbar(self.bottom_frame_second, orient='vertical', command=self.canvas.yview)
+        vscrollbar.pack(side=RIGHT, fill='y')
+        self.canvas.configure(yscrollcommand=vscrollbar.set)
+
 
         # 캔버스 내부에 위젯을 담을 프레임 생성
-        self.scrollable_frame = Frame(self.canvas)
+        self.scrollable_frame = Frame(self.canvas,width=800, height= 800)
         self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
-
-        # 프레임 크기가 변경될 때 캔버스와 스크롤바를 함께 설정하는 함수 바인딩
-        self.scrollable_frame.bind("<Configure>", self.on_frame_configure)
-
-        # 캔버스의 크기를 설정하여 그리드 생성
-        self.cell_width = 115
-        self.cell_height = 100
+        # 프레임 내에 라벨 배치
         for row in range(10):
             for col in range(5):
-                x1 = col * self.cell_width
-                y1 = row * self.cell_height
-                x2 = x1 + self.cell_width
-                y2 = y1 + self.cell_height
-                self.canvas.create_rectangle(x1, y1, x2, y2, outline="black")
+                label = Label(self.scrollable_frame, text=f"Row {row}, Col {col}", bg="white", fg="black",
+                              font=("Arial", 10), width=14, height=7)
+                label.grid(row=row, column=col, padx=1, pady=1)
 
-                # 직사각형 내부에 텍스트 배치
-                text_x = (x1 + x2) / 2
-                text_y = (y1 + y2) / 2
-                self.canvas.create_text(text_x, text_y, text=" ", font=("Arial", 10))
-        self.canvas.bind("<Configure>", self.on_frame_configure)
+        # 가로 스크롤바 생성 및 캔버스와 연결
+        hscrollbar = Scrollbar(self.scrollable_frame, orient='horizontal', command=self.canvas.xview)
+        self.canvas.configure(xscrollcommand=hscrollbar.set)
+
+        # 캔버스의 크기가 변경될 때 스크롤 영역을 적절하게 조정
+        self.scrollable_frame.bind("<Configure>", self.on_frame_configure)
 
     def on_frame_configure(self, event):
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
