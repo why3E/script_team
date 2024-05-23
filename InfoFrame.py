@@ -4,12 +4,8 @@ from io import BytesIO
 import urllib
 import urllib.request
 from PIL import Image, ImageTk
-import folium
-import os
-from selenium import webdriver  # pip install selenium webdriver-manager
-from selenium.webdriver.chrome.service import Service as ChromeService
-from webdriver_manager.chrome import ChromeDriverManager
-import time
+import webbrowser
+from Map import Map
 
 Facilities = ['restaurant', 'cafe', 'store', 'nolibang', 'suyu', 'parkbarrier',
               'restbarrier', 'runwbarrier', 'elevbarrier', 'parkinglot']
@@ -35,12 +31,20 @@ class InfoFrame(Frame):
         self.sub_frame2 = Frame(self)
         self.sub_frame2.grid_propagate(False)
         self.sub_frame2.grid(row=1, column=0, sticky="nsew")
-        self.information = Listbox(self.sub_frame2)
+        self.informations = []
+        self.information = Canvas(self.sub_frame2, bg='white')
         self.information.grid(row=0, column=0, sticky="nsew")
         self.sub_frame2.grid_rowconfigure(0, weight=1)
         self.sub_frame2.grid_columnconfigure(0, weight=2)
 
-        self.sub_frame3 = Frame(self, bg='blue')
+        self.information_xscroll = Scrollbar(self.information, orient='horizontal', command=self.information.xview)
+        self.information_xscroll.pack(side="bottom", fill=X)
+        self.information_yscroll = Scrollbar(self.information, orient='vertical', command=self.information.yview)
+        self.information_yscroll.pack(side="right", fill=Y)
+        self.information.configure(xscrollcommand=self.information_xscroll.set,
+                                   yscrollcommand=self.information_yscroll.set)
+
+        self.sub_frame3 = Frame(self, bg='white')
         self.sub_frame3.grid_propagate(False)
         self.sub_frame3.grid(row=2, column=0, sticky="nsew")
         self.sub_frame3.grid_rowconfigure(0, weight=1)
@@ -67,15 +71,8 @@ class ShowInfoFrame(InfoFrame):
 
         Button(self.sub_frame1, command=self.showPlaceInfo).grid(row=0, column=2, sticky="nsew")
 
-        self.information_xscroll = Scrollbar(self.information, orient='horizontal', command=self.information.xview)
-        self.information_xscroll.pack(side="bottom", fill=X)
-        self.information_yscroll = Scrollbar(self.information, orient='vertical', command=self.information.yview)
-        self.information_yscroll.pack(side="right", fill=Y)
-        self.information.configure(xscrollcommand=self.information_xscroll.set,
-                                   yscrollcommand=self.information_yscroll.set)
-
         self.posters = []
-        self.poster = Canvas(self.sub_frame2, bg='blue')
+        self.poster = Canvas(self.sub_frame2)
         self.poster.grid_propagate(False)
         self.poster.grid(row=0, column=1, sticky="nsew")
 
@@ -85,8 +82,7 @@ class ShowInfoFrame(InfoFrame):
 
         self.sub_frame2.grid_columnconfigure(1, weight=1)
 
-        self.urls = Listbox(self.sub_frame3)
-        self.urls.grid(row=0, column=0, sticky="nsew")
+        self.urls = []
 
     def getInfo(self, id):
         fetcher = xmlRead()
@@ -94,11 +90,12 @@ class ShowInfoFrame(InfoFrame):
         self.data = fetcher.fetch_and_parse_show_detail_data(id)[0]
 
     def setInfo(self, id):
+        self.place_id = None
+        self.informations.clear()
+        self.information.delete("all")
         self.posters.clear()
         self.poster.delete("all")
-        self.urls.delete(0, END)
-        self.place_id = None
-        self.information.delete(0, END)
+        self.urls.clear()
 
         self.getInfo(id)
 
@@ -115,36 +112,58 @@ class ShowInfoFrame(InfoFrame):
                     self.posters.append(image)
             elif k == 'relates':
                 for url in v:
-                    self.urls.insert(END, url['relateurl'])
+                    self.urls.append(
+                        (Label(self.sub_frame3, text=url['relatenm']),
+                         Label(self.sub_frame3, text=url['relateurl'], fg='blue')))
             else:
                 if k == 'mt10id':
                     self.place_id = v
-                self.information.insert(END, k + ' : ' + str(v))
+                self.informations.append(k + ' : ' + str(v))
+
+        for i in range(len(self.informations)):
+            self.information.create_text(5, 25 * (i + 1), anchor=W, text=self.informations[i],
+                                         font=('arial', 10, 'bold'))
+        self.information.config(scrollregion=self.information.bbox(ALL))
 
         loc = 0
-        for poster in self.posters:
-            self.poster.create_image(0, loc, anchor=NW, image=poster)
-            self.poster.image_names = poster
-            loc += (self.poster.winfo_width() - 19) * poster.height() // poster.width()
+        for p in self.posters:
+            self.poster.create_image(0, loc, anchor=NW, image=p)
+            self.poster.image_names = p
+            loc += (self.poster.winfo_width() - 19) * p.height() // p.width()
         self.poster.config(scrollregion=self.poster.bbox(ALL))
+
+        r = 0
+        for t in self.urls:
+            t[0].grid(row=r, column=0, padx=2, pady=2, sticky='nsew')
+            t[1].grid(row=r, column=1, padx=2, pady=2, sticky='nsew')
+            t[1].bind("<Button-1>", self.open_url(t[1].cget('text')))
+            self.sub_frame3.grid_rowconfigure(r, weight=1)
+            r += 1
+
+    def open_url(self, url):
+        def callback(event):
+            webbrowser.open_new(url)
+
+        return callback
 
     def showPlaceInfo(self):
         if self.place_id:
-            place_info_frame = Toplevel()
-            place_info_frame.geometry("800x700")
-            place_info_frame.title("공연 장소 정보")
-
-            place_info = PlaceInfoFrame(place_info_frame)
-            place_info.pack(side=LEFT, fill=BOTH, expand=True)
-            # place_info.setInfo(self.place_id)
-            place_info.setInfo('FC001247')  # 테스트
+            PlaceInfoFrame(self.place_id)
 
 
 class PlaceInfoFrame(InfoFrame):
-    def __init__(self, parent):
-        super().__init__(parent)
-
+    def __init__(self, id):
+        self.place_id = id
         self.status = True  # True : 공연 장소 정보, False : 편의 시설 정보
+        self.map = Map()
+
+        place_info_frame = Toplevel()
+        place_info_frame.geometry("800x700")
+        place_info_frame.title("공연 장소 정보")
+
+        super().__init__(place_info_frame)
+        self.pack(side=LEFT, fill=BOTH, expand=True)
+        self.setInfo(self.place_id)
 
         self.toggle_button = Button(self.sub_frame1, command=self.toggleInfo)
         self.toggle_button.grid(row=0, column=2, sticky="nsew")
@@ -155,60 +174,40 @@ class PlaceInfoFrame(InfoFrame):
         self.data = fetcher.fetch_and_parse_place_data(id)[0]
 
     def setInfo(self, id):
+        self.informations.clear()
+        self.information.delete('all')
+
         self.getInfo(id)
 
         for k, v in self.data.items():
-            if k not in Facilities:
-                if k == 'la':
-                    self.latitutde = v
-                elif k == 'lo':
-                    self.longitude = v
-                if k == 'mt13s':
-                    for mt13d in v:
-                        for mt13k, mt13v in mt13d.items():
-                            self.information.insert(END, mt13k + ' : ' + mt13v)
-                else:
-                    self.information.insert(END, k + ' : ' + str(v))
+            if k == 'la':
+                self.latitude = v
+                continue
+            if k == 'lo':
+                self.longitude = v
+                continue
 
-        map_osm = folium.Map(location=[self.latitutde, self.longitude], zoom_start=10)
-        folium.Marker([self.latitutde, self.longitude]).add_to(map_osm)
-        map_osm.save('osm.html')
-        self.save_map_as_image('osm.html', 'osm.png')
-        map_image = Image.open('osm.png')
-        map_photo = ImageTk.PhotoImage(map_image)
-
-        self.map = Canvas(self.sub_frame3)
-        self.map.create_image(400, 80, image=map_photo)
-        self.map.image_names = map_photo
-        self.map.grid(row=0, column=0, sticky="nsew")
-
-    def save_map_as_image(self, map_file, output_file):
-        options = webdriver.ChromeOptions()
-        options.add_argument('--headless')
-        options.add_argument('--disable-gpu')
-        options.add_argument('window-size=1024x768')
-        driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=options)
-
-        driver.get('file://' + os.path.realpath(map_file))
-        time.sleep(2.5)  # 지도 로딩 시간
-
-        driver.save_screenshot(output_file)
-        driver.quit()
-
-    def toggleInfo(self):
-        self.information.delete(0, END)
-
-        self.status = not self.status
-
-        for k, v in self.data.items():
             if self.status:
                 if k not in Facilities:
                     if k == 'mt13s':
                         for mt13d in v:
                             for mt13k, mt13v in mt13d.items():
-                                self.information.insert(END, mt13k + ' : ' + mt13v)
+                                self.informations.append(mt13k + ' : ' + mt13v)
                     else:
-                        self.information.insert(END, k + ' : ' + str(v))
+                        self.informations.append(k + ' : ' + v)
             else:
                 if k in Facilities:
-                    self.information.insert(END, k + ' : ' + str(v))
+                    self.informations.append(k + ' : ' + v)
+
+        for i in range(len(self.informations)):
+            self.information.create_text(5, 25 * (i + 1), anchor=W, text=self.informations[i],
+                                         font=('arial', 10, 'bold'))
+        self.information.config(scrollregion=self.information.bbox(ALL))
+
+        if self.map.get_coordinate() != (self.latitude, self.longitude):
+            self.map.show_map(self.sub_frame3, self.latitude, self.longitude)
+
+    def toggleInfo(self):
+        self.status = not self.status
+
+        self.setInfo(self.place_id)
