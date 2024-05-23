@@ -11,7 +11,9 @@ from selenium.webdriver.chrome.service import Service as ChromeService
 from webdriver_manager.chrome import ChromeDriverManager
 import time
 
-Facilities = ['restaurant', 'cafe', 'store', 'nolibang', 'suyu', 'parkbarrier', 'restbarrier', 'runwbarrier', 'elevbarrier', 'parkinglot']
+Facilities = ['restaurant', 'cafe', 'store', 'nolibang', 'suyu', 'parkbarrier',
+              'restbarrier', 'runwbarrier', 'elevbarrier', 'parkinglot']
+
 
 class InfoFrame(Frame):
     def __init__(self, main_frame):
@@ -69,7 +71,8 @@ class ShowInfoFrame(InfoFrame):
         self.information_xscroll.pack(side="bottom", fill=X)
         self.information_yscroll = Scrollbar(self.information, orient='vertical', command=self.information.yview)
         self.information_yscroll.pack(side="right", fill=Y)
-        self.information.configure(xscrollcommand=self.information_xscroll.set, yscrollcommand=self.information_yscroll.set)
+        self.information.configure(xscrollcommand=self.information_xscroll.set,
+                                   yscrollcommand=self.information_yscroll.set)
 
         self.posters = []
         self.poster = Canvas(self.sub_frame2, bg='blue')
@@ -92,6 +95,7 @@ class ShowInfoFrame(InfoFrame):
 
     def setInfo(self, id):
         self.posters.clear()
+        self.poster.delete("all")
         self.urls.delete(0, END)
         self.place_id = None
         self.information.delete(0, END)
@@ -104,7 +108,8 @@ class ShowInfoFrame(InfoFrame):
                     with urllib.request.urlopen(url) as u:
                         raw_data = u.read()
                     im = Image.open(BytesIO(raw_data))
-                    im = im.resize((self.poster.winfo_width() - 19, (self.poster.winfo_width() - 19) * im.height // im.width))
+                    im = im.resize(
+                        (self.poster.winfo_width() - 19, (self.poster.winfo_width() - 19) * im.height // im.width))
                     image = ImageTk.PhotoImage(im)
 
                     self.posters.append(image)
@@ -126,14 +131,14 @@ class ShowInfoFrame(InfoFrame):
     def showPlaceInfo(self):
         if self.place_id:
             place_info_frame = Toplevel()
-            place_info_frame.geometry("600x700")
+            place_info_frame.geometry("800x700")
             place_info_frame.title("공연 장소 정보")
 
             place_info = PlaceInfoFrame(place_info_frame)
             place_info.pack(side=LEFT, fill=BOTH, expand=True)
             # place_info.setInfo(self.place_id)
             place_info.setInfo('FC001247')  # 테스트
-            
+
 
 class PlaceInfoFrame(InfoFrame):
     def __init__(self, parent):
@@ -173,7 +178,7 @@ class PlaceInfoFrame(InfoFrame):
         map_photo = ImageTk.PhotoImage(map_image)
 
         self.map = Canvas(self.sub_frame3)
-        self.map.create_image(300, 80, image=map_photo)
+        self.map.create_image(400, 80, image=map_photo)
         self.map.image_names = map_photo
         self.map.grid(row=0, column=0, sticky="nsew")
 

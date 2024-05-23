@@ -16,7 +16,7 @@ class SearchFrame(Frame):
         self.sub_frame1.pack(side=LEFT, fill=BOTH)
 
         self.sub_frame2 = ShowInfoFrame(self)
-        self.sub_frame2.pack(side=LEFT, fill=BOTH, expand=True)
+        self.sub_frame2.pack(side=LEFT, padx=10, pady=10, fill=BOTH, expand=True)
 
         self.sub_frame_top = Frame(self.sub_frame1, bg="orange")
         self.sub_frame_top.pack(side=TOP, anchor=N, fill=X)

@@ -7,7 +7,7 @@ import os
 
 class MainGUI:
     def __init__(self):
-        self.window_width = 1200
+        self.window_width = 1400
         self.window_height = 700
 
         self.window = Tk()
@@ -40,8 +40,10 @@ class MainGUI:
         self.window.mainloop()
 
     def __del__(self):
-        os.remove('osm.html')
-        os.remove('osm.png')
+        if os.path.exists('osm.html'):
+            os.remove('osm.html')
+        if os.path.exists('osm.png'):
+            os.remove('osm.png')
 
     def create_button_with_label(self, parent, image, text, row, command):
         frame = Frame(parent)
