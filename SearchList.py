@@ -4,7 +4,8 @@ from xmlRead import xmlRead
 from io import BytesIO
 import urllib
 import urllib.request
-from PIL import Image,ImageTk
+from PIL import Image, ImageTk
+
 
 class SearchListFrame(Frame):
     def __init__(self, main_frame):
@@ -50,26 +51,38 @@ class SearchListFrame(Frame):
         self.searchButton.pack(side=LEFT)
 
     def searchDate(self):
-        stdate = f"{self.from_calender.year}-{self.from_calender.month:02}-{self.from_calender.day:02}"
-        eddate = f"{self.to_calender.year}-{self.to_calender.month:02}-{self.to_calender.day:02}"
+
+        stdate = f"{self.from_calender.year}{self.from_calender.month:02}{self.from_calender.day:02}"
+        eddate = f"{self.to_calender.year}{self.to_calender.month:02}{self.to_calender.day:02}"
+        print(stdate)
+        print(eddate)
+
         data = xmlRead()
         dataList = data.fetch_and_parse_show_data(stdate, eddate, 10, 1)
-        self.canvas.delete("all")
 
-        list = ['poster','prfnm', 'genrenm', 'fcltynm', 'prfstate']
-        for row in range(10):
+        for widget in self.scrollable_frame.winfo_children():
+            widget.destroy()
+
+            # 새로운 데이터로 라벨 생성
+        label_list = ['poster', 'prfnm', 'genrenm', 'fcltynm', 'prfstate']
+        for row in range(len(dataList)):
             for col in range(5):
-                x1 = col * self.cell_width
-                y1 = row * self.cell_height
-                x2 = x1 + self.cell_width
-                y2 = y1 + self.cell_height
-                self.canvas.create_rectangle(x1, y1, x2, y2, outline="black")
+                if col == 0:
+                    url = dataList[row][label_list[col]]
+                    with urllib.request.urlopen(url) as u:
+                        raw_data = u.read()
 
-                # 직사각형 내부에 텍스트 배치
-                text_x = (x1 + x2) / 2
-                text_y = (y1 + y2) / 2
+                    im = Image.open(BytesIO(raw_data))
+                    im = im.resize((100, 100))  # 이미지 크기를 조절
+                    image = ImageTk.PhotoImage(im)
+                    label = Label(self.scrollable_frame, image=image, height=100, width=100)
+                    label.image = image  # 이미지에 대한 참조 유지를 위해 속성에 할당
+                    label.grid(row=row, column=col, padx=1, pady=1, sticky="nsew")
+                else:
+                    label = Label(self.scrollable_frame, text=dataList[row][label_list[col]], font=("Arial bold", 10),
+                                  bg="white", fg="black", width=14, height=7, wraplength=100)
+                    label.grid(row=row, column=col, padx=1, pady=1, sticky="nsew")
 
-                self.canvas.create_text(text_x, text_y, text=dataList[row][list[col]], font=("Arial", 10))
         print(dataList)
 
     def setBottom(self):
@@ -114,7 +127,8 @@ class SearchListFrame(Frame):
 
             # 왼쪽 프레임에 라벨 추가
             label_text = label_texts[col]  # 라벨의 텍스트를 설정합니다.
-            label = Label(left_frame, text=label_text, bg="white", fg="black", font=("Arial", 10, "bold"))  # 라벨을 생성합니다.
+            label = Label(left_frame, text=label_text, bg="white", fg="black",
+                          font=("Arial bold", 10, "bold"))  # 라벨을 생성합니다.
             label.pack(expand=True, fill="both", padx=5, pady=5)
 
             right_frame = Frame(self.frames[col], bg="white")
@@ -127,36 +141,43 @@ class SearchListFrame(Frame):
 
     def setDataLog(self):
         # 캔버스 생성
-        self.canvas = Canvas(self.bottom_frame_second)
-        self.canvas.size
-        self.canvas.pack(side=LEFT, fill=BOTH, expand=True)
+        self.bottom_frame_second.grid_columnconfigure(0, weight=40)  # 캔버스의 열을 확장
+        self.bottom_frame_second.grid_columnconfigure(1, weight=1)  # 스크롤바의 열을 고정
+        self.bottom_frame_second.grid_rowconfigure(0, weight=1)  # 캔버스의 열을 확장
+
+        self.bottom_frame_second_left = Frame(self.bottom_frame_second)
+        self.bottom_frame_second_left.propagate(False)
+        self.bottom_frame_second_left.grid(row=0, column=0, sticky="nsew")
+
+        self.canvas = Canvas(self.bottom_frame_second_left)
+        self.canvas.pack(side=LEFT, fill='both', expand=True)
+
+        self.bottom_frame_second_right = Frame(self.bottom_frame_second)
+        self.bottom_frame_second_right.propagate(False)
+        self.bottom_frame_second_right.grid(row=0, column=1, sticky="nsew")
 
         # 수직 스크롤바 생성 및 캔버스와 연결
-        vscrollbar = Scrollbar(self.bottom_frame_second, orient='vertical', command=self.canvas.yview)
-        vscrollbar.pack(side=RIGHT, fill='y')
+        vscrollbar = Scrollbar(self.bottom_frame_second_right, orient='vertical', command=self.canvas.yview)
+        vscrollbar.pack(side=LEFT, fill='both')
+
         self.canvas.configure(yscrollcommand=vscrollbar.set)
 
-
         # 캔버스 내부에 위젯을 담을 프레임 생성
-        self.scrollable_frame = Frame(self.canvas,width=800, height= 800)
+        self.scrollable_frame = Frame(self.canvas)
         self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+
         # 프레임 내에 라벨 배치
         for row in range(10):
             for col in range(5):
-                label = Label(self.scrollable_frame, text=f"Row {row}, Col {col}", bg="white", fg="black",
-                              font=("Arial", 10), width=14, height=7)
+                label = Label(self.scrollable_frame, text=f"", bg="white", fg="black",
+                              font=("Arial", 10), width=14, height=6)
                 label.grid(row=row, column=col, padx=1, pady=1)
-
-        # 가로 스크롤바 생성 및 캔버스와 연결
-        hscrollbar = Scrollbar(self.scrollable_frame, orient='horizontal', command=self.canvas.xview)
-        self.canvas.configure(xscrollcommand=hscrollbar.set)
 
         # 캔버스의 크기가 변경될 때 스크롤 영역을 적절하게 조정
         self.scrollable_frame.bind("<Configure>", self.on_frame_configure)
 
     def on_frame_configure(self, event):
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
-
 
 
 class ShowSearchFrame(SearchListFrame):

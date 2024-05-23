@@ -16,6 +16,7 @@ class Calender:
     def open_date_popup(self):
         self.year = 2024
         self.month = 1
+        self.day = 0
 
         self.window = Toplevel()
         self.window.title("날짜 선택")
@@ -78,15 +79,15 @@ class Calender:
             week_frame = Frame(self.calendar_frame)
             week_frame.pack(fill=X)
 
-            for day in week:
-                self.create_day_button(week_frame, day)
+            for date in week:
+                self.create_day_button(week_frame, date)
 
-    def create_day_button(self, parent, day):
+    def create_day_button(self, parent, date):
         day_button = Button(
-            parent, text=day.day,  #
+            parent, text=date.day,  #
             width=4, height=2,  # 픽셀 단위로 버튼 크기 지정
-            state=NORMAL if day.month == self.month else DISABLED,
-            command=self.create_day_button_command(day)
+            state=NORMAL if date.month == self.month else DISABLED,
+            command=self.create_day_button_command(date)
         )
         day_button.pack(side=LEFT, padx=5, pady=5)  # 버튼 간격 조정
 
@@ -97,17 +98,21 @@ class Calender:
         return command
 
     def set_selected_day(self, day):
-        self.day = day
-        self.selected_date_label.config(text=f"{self.day}")
+        self.date = day
+        self.selected_date_label.config(text=f"{self.date}")
+
+        self.year = self.date.year
+        self.month = self.date.month
+        self.day = self.date.day  #
 
     def select_date(self, top):
         try:
-            selected_date = f"{self.day.year}-{self.day.month:02}-{self.day.day:02}"  #
+            selected_date = f"{self.date.year}-{self.date.month:02}-{self.date.day:02}"  #
             self.selected_date_label.config(text=f"{selected_date}")
 
-            self.year = self.day.year
-            self.month = self.day.month
-            self.day = self.day.day  #
+            self.year = self.date.year
+            self.month = self.date.month
+            self.day = self.date.day  #
 
         except Exception as e:
             self.selected_date_label.config(text="시작일: 없음")
