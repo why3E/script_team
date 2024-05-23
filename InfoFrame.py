@@ -85,19 +85,13 @@ class ShowInfoFrame(InfoFrame):
         self.urls = []
 
     def getInfo(self, id):
-        fetcher = xmlRead()
-
-        self.data = fetcher.fetch_and_parse_show_detail_data(id)[0]
-
-    def setInfo(self, id):
         self.place_id = None
         self.informations.clear()
-        self.information.delete("all")
         self.posters.clear()
-        self.poster.delete("all")
         self.urls.clear()
 
-        self.getInfo(id)
+        fetcher = xmlRead()
+        self.data = fetcher.fetch_and_parse_show_detail_data(id)[0]
 
         for k, v in self.data.items():
             if k == 'styurls':
@@ -119,6 +113,12 @@ class ShowInfoFrame(InfoFrame):
                 if k == 'mt10id':
                     self.place_id = v
                 self.informations.append(k + ' : ' + str(v))
+
+    def setInfo(self, id):
+        self.information.delete("all")
+        self.poster.delete("all")
+
+        self.getInfo(id)
 
         for i in range(len(self.informations)):
             self.information.create_text(5, 25 * (i + 1), anchor=W, text=self.informations[i],
@@ -155,6 +155,18 @@ class PlaceInfoFrame(InfoFrame):
     def __init__(self, id):
         self.place_id = id
         self.status = True  # True : 공연 장소 정보, False : 편의 시설 정보
+        self.data = None
+        self.facility_image = {
+            'restaurant': PhotoImage(file="image/restaurant.png"),
+            'cafe': PhotoImage(file="image/cafe.png"),
+            'store': PhotoImage(file="image/store.png"),
+            'nolibang': PhotoImage(file="image/nolibang.png"),
+            'suyu': PhotoImage(file="image/suyu.png"),
+            'parkinglot': PhotoImage(file="image/parkinglot.png"),
+            'parkbarrier': PhotoImage(file="image/parkbarrier.png"),
+            'restbarrier': PhotoImage(file="image/restbarrier.png"),
+            'elevbarrier': PhotoImage(file="image/elevbarrier.png")
+        }
         self.map = Map()
 
         place_info_frame = Toplevel()
@@ -163,21 +175,18 @@ class PlaceInfoFrame(InfoFrame):
 
         super().__init__(place_info_frame)
         self.pack(side=LEFT, fill=BOTH, expand=True)
-        self.setInfo(self.place_id)
+        # self.setInfo(self.place_id)
+        self.setInfo('FC001247')
 
         self.toggle_button = Button(self.sub_frame1, command=self.toggleInfo)
         self.toggle_button.grid(row=0, column=2, sticky="nsew")
 
     def getInfo(self, id):
-        fetcher = xmlRead()
-
-        self.data = fetcher.fetch_and_parse_place_data(id)[0]
-
-    def setInfo(self, id):
         self.informations.clear()
-        self.information.delete('all')
 
-        self.getInfo(id)
+        if not self.data:
+            fetcher = xmlRead()
+            self.data = fetcher.fetch_and_parse_place_data(id)[0]
 
         for k, v in self.data.items():
             if k == 'la':
@@ -196,18 +205,40 @@ class PlaceInfoFrame(InfoFrame):
                     else:
                         self.informations.append(k + ' : ' + v)
             else:
-                if k in Facilities:
-                    self.informations.append(k + ' : ' + v)
+                if k in Facilities and v != 'N':
+                    self.informations.append(k)
 
-        for i in range(len(self.informations)):
-            self.information.create_text(5, 25 * (i + 1), anchor=W, text=self.informations[i],
-                                         font=('arial', 10, 'bold'))
-        self.information.config(scrollregion=self.information.bbox(ALL))
+    def setInfo(self, id):
+        self.information.delete('all')
 
-        if self.map.get_coordinate() != (self.latitude, self.longitude):
-            self.map.show_map(self.sub_frame3, self.latitude, self.longitude)
+        self.getInfo(id)
+
+        if self.status:
+            for i in range(len(self.informations)):
+                self.information.create_text(5, 25 * (i + 1), anchor=W, text=self.informations[i],
+                                             font=('arial', 10, 'bold'))
+            self.information.config(scrollregion=self.information.bbox(ALL))
+        else:
+            self.drawStatistics()
+
+        # if self.map.get_coordinate() != (self.latitude, self.longitude):
+        #     self.map.show_map(self.sub_frame3, self.latitude, self.longitude)
 
     def toggleInfo(self):
         self.status = not self.status
 
         self.setInfo(self.place_id)
+
+    def drawStatistics(self):
+        self.information.create_line(50, self.information.winfo_height() - 70, self.information.winfo_width() - 50,
+                                     self.information.winfo_height() - 70)
+        self.information.create_line(50, self.information.winfo_height() - 70, 50, 50)
+
+        col = 1
+        gap = (self.information.winfo_width() - 100) // len(self.facility_image)
+        for k, v in self.facility_image.items():
+            self.information.create_image(20 + col * gap, self.information.winfo_height() - 35, image=v)
+            if k in self.informations:
+                self.information.create_rectangle(5 + col * gap, 120, 35 + col * gap,
+                                                  self.information.winfo_height() - 70, fill='blue')
+            col += 1
