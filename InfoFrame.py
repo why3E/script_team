@@ -67,6 +67,7 @@ class ShowInfoFrame(InfoFrame):
     def __init__(self, parent):
         super().__init__(parent)
 
+        self.show_id = None
         self.place_id = None
         self.data = None
 
@@ -86,14 +87,14 @@ class ShowInfoFrame(InfoFrame):
 
         self.urls = []
 
-    def getInfo(self, id):
+    def getInfo(self):
         self.place_id = None
         self.informations.clear()
         self.poster_refs.clear()
         self.urls.clear()
 
         fetcher = xmlRead()
-        self.data = fetcher.fetch_and_parse_show_detail_data(id)[0]
+        self.data = fetcher.fetch_and_parse_show_detail_data(self.show_id)[0]
         self.images = []
 
         for k, v in self.data.items():
@@ -122,7 +123,8 @@ class ShowInfoFrame(InfoFrame):
         self.information.delete("all")
         self.poster.delete("all")
 
-        self.getInfo(id)
+        self.show_id = id
+        self.getInfo()
 
         for i in range(len(self.informations)):
             self.information.create_text(5, 25 * (i + 1), anchor=W, text=self.informations[i],
@@ -162,12 +164,17 @@ class ShowInfoFrame(InfoFrame):
 
     def showPlaceInfo(self):
         if self.place_id:
-            PlaceInfoFrame(self.place_id)
+            place_info_frame = Toplevel()
+            place_info_frame.geometry("800x700")
+            place_info_frame.title("공연 장소 정보")
+
+            place_info = PlaceInfoFrame(place_info_frame)
+            place_info.setInfo(self.place_id)
 
 
 class PlaceInfoFrame(InfoFrame):
-    def __init__(self, id):
-        self.place_id = id
+    def __init__(self, parent):
+        self.place_id = None
         self.status = True  # True : 공연 장소 정보, False : 편의 시설 정보
         self.data = None
         self.facility_image = {
@@ -183,11 +190,7 @@ class PlaceInfoFrame(InfoFrame):
         }
         self.map = Map()
 
-        place_info_frame = Toplevel()
-        place_info_frame.geometry("800x700")
-        place_info_frame.title("공연 장소 정보")
-
-        super().__init__(place_info_frame)
+        super().__init__(parent)
         self.pack(side=LEFT, fill=BOTH, expand=True)
         # self.setInfo(self.place_id)
         self.setInfo('FC001247')
@@ -195,12 +198,12 @@ class PlaceInfoFrame(InfoFrame):
         self.toggle_button = Button(self.sub_frame1, command=self.toggleInfo)
         self.toggle_button.grid(row=0, column=2, sticky="nsew")
 
-    def getInfo(self, id):
+    def getInfo(self):
         self.informations.clear()
 
         if not self.data:
             fetcher = xmlRead()
-            self.data = fetcher.fetch_and_parse_place_data(id)[0]
+            self.data = fetcher.fetch_and_parse_place_data(self.place_id)[0]
 
         for k, v in self.data.items():
             if k == 'la':
@@ -225,7 +228,8 @@ class PlaceInfoFrame(InfoFrame):
     def setInfo(self, id):
         self.information.delete('all')
 
-        self.getInfo(id)
+        self.place_id = id
+        self.getInfo()
 
         if self.status:
             for i in range(len(self.informations)):
@@ -234,9 +238,10 @@ class PlaceInfoFrame(InfoFrame):
             self.information.config(scrollregion=self.information.bbox(ALL))
         else:
             self.drawStatistics()
+            self.information.config(scrollregion=self.information.bbox(ALL))
 
-        if self.map.get_coordinate() != (self.latitude, self.longitude):
-            self.map.show_map(self.sub_frame3, self.latitude, self.longitude)
+        # if self.map.get_coordinate() != (self.latitude, self.longitude):
+        #     self.map.show_map(self.sub_frame3, self.latitude, self.longitude)
 
     def toggleInfo(self):
         self.status = not self.status

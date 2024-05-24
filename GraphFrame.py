@@ -117,6 +117,9 @@ class GraphFrame(Frame):
             self.state = 'nmrs'
         elif self.prfprocntVar.get():
             self.state = 'prfprocnt'
+        else:
+            self.state = None
+            return
 
         if not self.is_toggle:
             if mode == '지역':
@@ -147,7 +150,7 @@ class GraphFrame(Frame):
         return maxValue
 
     def toggle_graph(self):
-        if self.mode != self.mode_selector.get():
+        if self.mode != self.mode_selector.get() or not self.state:
             return
 
         self.is_toggle = True
@@ -163,7 +166,8 @@ class GraphFrame(Frame):
 
         if self.mode:
             self.setInfo(self.mode)
-        else:
+
+        if not self.mode or not self.state:
             return
 
         self.bar_canvas.create_line(50, self.bar_canvas.winfo_height() - 70,
