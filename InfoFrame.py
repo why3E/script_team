@@ -240,8 +240,8 @@ class PlaceInfoFrame(InfoFrame):
             self.drawStatistics()
             self.information.config(scrollregion=self.information.bbox(ALL))
 
-        # if self.map.get_coordinate() != (self.latitude, self.longitude):
-        #     self.map.show_map(self.sub_frame3, self.latitude, self.longitude)
+        if self.map.get_coordinate() != (self.latitude, self.longitude):
+            self.map.show_map(self.sub_frame3, self.latitude, self.longitude)
 
     def toggleInfo(self):
         self.status = not self.status

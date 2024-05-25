@@ -1,17 +1,17 @@
 from tkinter import *
 from PIL import Image, ImageTk
-import folium
-import os
-from selenium import webdriver  # pip install selenium webdriver-manager
-from selenium.webdriver.chrome.service import Service as ChromeService
-from webdriver_manager.chrome import ChromeDriverManager
-import time
+import requests
+import io
+
+url = "https://naveropenapi.apigw.ntruss.com/map-static/v2/raster"
+client_id = 'b5gc0qz8xe'
+client_secret = 'rmjbtghgRe2yJDl0DZEPwK8BmBW9VSNKSanHZuWG'
 
 
 class Map:
     def __init__(self):
-        self.latitude = 0
-        self.longitude = 0
+        self.latitude = ''
+        self.longitude = ''
 
     def get_coordinate(self):
         return (self.latitude, self.longitude)
@@ -20,27 +20,43 @@ class Map:
         self.latitude = latitude
         self.longitude = longitude
 
-        map_osm = folium.Map(location=[self.latitude, self.longitude], zoom_start=10)
-        folium.Marker([self.latitude, self.longitude]).add_to(map_osm)
-        map_osm.save('osm.html')
-        self.save_map_as_image('osm.html', 'osm.png')
-        map_image = Image.open('osm.png')
-        map_photo = ImageTk.PhotoImage(map_image)
+        headers = {
+            "X-NCP-APIGW-API-KEY-ID": client_id,
+            "X-NCP-APIGW-API-KEY": client_secret,
+        }
 
-        self.map = Canvas(frame)
+        center = f'{longitude},{latitude}'
+        level = 10  # 줌 레벨, 0 ~ 20
+        width, height = 800, 160
+        maptype = "basic"
+        format = "png"
+        scale = 1
+        markers = f"type:d|size:mid|pos:{longitude} {latitude}|color:red"
+        lang = "ko"
+        public_transit = True
+        dataversion = ""
+
+        URL = f"{url}?center={center}&level={level}&w={width}&h={height}&maptype={maptype}&format={format}&scale={scale}&markers={markers}&lang={lang}&public_transit={public_transit}&dataversion={dataversion}"
+        res = requests.get(URL, headers=headers)
+
+        image_data = io.BytesIO(res.content)
+        self.map_image = Image.open(image_data)
+        map_photo = ImageTk.PhotoImage(self.map_image)
+
+        self.map = Canvas(frame, bg='blue')
+        self.map.bind('<Configure>', self.on_resize)
         self.map.create_image(400, 80, image=map_photo)
         self.map.image_names = map_photo
         self.map.grid(row=0, column=0, sticky="nsew")
 
-    def save_map_as_image(self, map_file, output_file):
-        options = webdriver.ChromeOptions()
-        options.add_argument('--headless')
-        options.add_argument('--disable-gpu')
-        options.add_argument('window-size=1024x768')
-        driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=options)
+    def on_resize(self, event):
+        self.map.delete("all")
+        # 가로 Down, 세로 Up
+        if (self.map.winfo_height() > self.map.winfo_width() * 160 // 800):
+            map_image = self.map_image.resize((800 * self.map.winfo_height() // 160, self.map.winfo_height()))
+        else:
+            map_image = self.map_image.resize((self.map.winfo_width(), self.map.winfo_width() * 160 // 800))
+        map_photo = ImageTk.PhotoImage(map_image)
 
-        driver.get('file://' + os.path.realpath(map_file))
-        time.sleep(2.5)  # 지도 로딩 시간
-
-        driver.save_screenshot(output_file)
-        driver.quit()
+        self.map.create_image(self.map.winfo_width() // 2, self.map.winfo_height() // 2, anchor=CENTER, image=map_photo)
+        self.map.image_names = map_photo
