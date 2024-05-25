@@ -5,7 +5,6 @@ import calendar
 class Calender:
     def __init__(self, parent):
         self.date_selector_frame = Frame(parent)
-        self.date_selector_frame.pack(side=LEFT, pady=10)
 
         self.selected_date_label = Label(self.date_selector_frame, text="시작일: 없음", font=("Arial", 10))
         self.selected_date_label.pack(side=LEFT)
@@ -117,3 +116,6 @@ class Calender:
         except Exception as e:
             self.selected_date_label.config(text="시작일: 없음")
         top.destroy()
+
+    def get_date(self):
+        return f'{self.year}{self.month:02}{self.day:02}'

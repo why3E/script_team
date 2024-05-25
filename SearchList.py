@@ -5,6 +5,7 @@ from io import BytesIO
 import urllib
 import urllib.request
 from PIL import Image, ImageTk
+from functools import partial
 
 
 class SearchListFrame(Frame):
@@ -12,6 +13,8 @@ class SearchListFrame(Frame):
         super().__init__(main_frame)
 
         self.page = 1
+        self.label_list = ['poster', 'prfnm', 'genrenm', 'fcltynm', 'prfstate']
+        self.data = xmlRead()
 
         super().grid_rowconfigure(0, weight=1)
         super().grid_rowconfigure(1, weight=9)
@@ -41,49 +44,79 @@ class SearchListFrame(Frame):
         self.top_frame_right.grid(row=0, column=1, sticky="nsew")
 
         self.from_calender = Calender(self.top_frame_left)
+        self.from_calender.date_selector_frame.pack(side=LEFT, pady=10)
+
         self.to_calender = Calender(self.top_frame_right)
+        self.to_calender.date_selector_frame.pack(side=LEFT, pady=10)
 
         self.top_frame_right_end = Frame(self.top_frame, bg='black')
-        self.top_frame_right.propagate(False)
+        self.top_frame_right_end.propagate(False)
         self.top_frame_right_end.grid(row=0, column=2, sticky="nsew")
 
-        self.searchButton = Button(self.top_frame_right_end, text="검색", command=self.searchDate)
+        self.searchButton = Button(self.top_frame_right_end, text="검색", command=self.searchData)
         self.searchButton.pack(side=LEFT)
 
-    def searchDate(self):
+    def searchData(self):
+        stdate = self.from_calender.get_date()
+        eddate = self.to_calender.get_date()
 
-        stdate = f"{self.from_calender.year}{self.from_calender.month:02}{self.from_calender.day:02}"
-        eddate = f"{self.to_calender.year}{self.to_calender.month:02}{self.to_calender.day:02}"
-        print(stdate)
-        print(eddate)
-
-        data = xmlRead()
-        dataList = data.fetch_and_parse_show_data(stdate, eddate, 10, 1)
+        self.dataList = self.data.fetch_and_parse_show_data(stdate, eddate, 10, self.page)
 
         for widget in self.scrollable_frame.winfo_children():
             widget.destroy()
 
             # 새로운 데이터로 라벨 생성
-        label_list = ['poster', 'prfnm', 'genrenm', 'fcltynm', 'prfstate']
-        for row in range(len(dataList)):
+        print(self.dataList)
+        for row in range(len(self.dataList)):
             for col in range(5):
                 if col == 0:
-                    url = dataList[row][label_list[col]]
+                    url = self.dataList[row][self.label_list[col]]
                     with urllib.request.urlopen(url) as u:
                         raw_data = u.read()
 
                     im = Image.open(BytesIO(raw_data))
                     im = im.resize((100, 100))  # 이미지 크기를 조절
                     image = ImageTk.PhotoImage(im)
-                    label = Label(self.scrollable_frame, image=image, height=100, width=100)
+                    label = Label(self.scrollable_frame, image=image)
                     label.image = image  # 이미지에 대한 참조 유지를 위해 속성에 할당
+
                     label.grid(row=row, column=col, padx=1, pady=1, sticky="nsew")
                 else:
-                    label = Label(self.scrollable_frame, text=dataList[row][label_list[col]], font=("Arial bold", 10),
+                    label = Label(self.scrollable_frame, text=self.dataList[row][self.label_list[col]],
+                                  font=("Arial bold", 10),
                                   bg="white", fg="black", width=14, height=7, wraplength=100)
                     label.grid(row=row, column=col, padx=1, pady=1, sticky="nsew")
 
-        print(dataList)
+    def sort_by_prfnm(self, tag, order):
+        reverse_order = False
+        if order == "down":
+            reverse_order = True
+
+        self.dataList = sorted(self.dataList, key=lambda x: x[tag], reverse=reverse_order)
+
+        print(self.dataList)
+        for widget in self.scrollable_frame.winfo_children():
+            widget.destroy()
+            # 새로운 데이터로 라벨 생성
+        for row in range(len(self.dataList)):
+            for col in range(5):
+                if col == 0:
+                    url = self.dataList[row][self.label_list[col]]
+                    with urllib.request.urlopen(url) as u:
+                        raw_data = u.read()
+
+                    im = Image.open(BytesIO(raw_data))
+                    im = im.resize((100, 100))  # 이미지 크기를 조절
+                    image = ImageTk.PhotoImage(im)
+                    label = Label(self.scrollable_frame, image=image)
+                    label.image = image  # 이미지에 대한 참조 유지를 위해 속성에 할당
+
+                    label.grid(row=row, column=col, padx=1, pady=1, sticky="nsew")
+                else:
+                    label = Label(self.scrollable_frame, text=self.dataList[row][self.label_list[col]],
+                                  font=("Arial bold", 10),
+                                  bg="white", fg="black", width=14, height=7, wraplength=100)
+                    label.grid(row=row, column=col, padx=1, pady=1, sticky="nsew")
 
     def setBottom(self):
         self.bottom_frame.grid_columnconfigure(0, weight=1)
@@ -104,6 +137,54 @@ class SearchListFrame(Frame):
         self.bottom_frame_third.grid(row=2, column=0, sticky="nsew")
         self.setDataValue()
         self.setDataLog()
+
+        self.setPage()
+
+    def setPage(self):
+        self.bottom_frame_third.columnconfigure([0, 1, 2], weight=1)
+        self.bottom_frame_third.grid_rowconfigure(0, weight=1)
+
+        self.bottom_frame_third_left = Frame(self.bottom_frame_third, bg='red')
+        self.bottom_frame_third_left.propagate(False)
+        self.bottom_frame_third_left.grid(row=0, column=0, sticky="nsew")
+        button_left = Button(self.bottom_frame_third_left, text="Left Button",
+                             command=lambda: self.setPageButton("left"))
+        button_left.pack()
+
+        # Middle frame with an entry box
+        self.bottom_frame_third_mid = Frame(self.bottom_frame_third, bg='blue')
+        self.bottom_frame_third_mid.propagate(False)
+        self.bottom_frame_third_mid.grid(row=0, column=1, sticky="nsew")
+        self.entry_mid = Entry(self.bottom_frame_third_mid, width=2)
+        self.entry_mid.pack()
+        self.entry_mid.insert(0, self.page)
+        self.entry_mid.bind('<Return>', self.save_page)
+
+        # Right frame with a button
+        self.bottom_frame_third_right = Frame(self.bottom_frame_third, bg='black')
+        self.bottom_frame_third_right.propagate(False)
+        self.bottom_frame_third_right.grid(row=0, column=2, sticky="nsew")
+
+        button_right = Button(self.bottom_frame_third_right, text="Right Button",
+                              command=lambda: self.setPageButton("right"))
+        button_right.pack()
+
+    def save_page(self, event=None):
+        self.page = int(self.entry_mid.get())
+        self.searchData()
+
+    def setPageButton(self, button):
+        if button == "right":
+            self.page += 1
+            self.searchData()
+            self.entry_mid.delete(0, "end")
+            self.entry_mid.insert(0, self.page)
+        elif button == "left":
+            if self.page > 1:
+                self.page -= 1
+                self.searchData()
+                self.entry_mid.delete(0, "end")
+                self.entry_mid.insert(0, self.page)
 
     def setDataValue(self):
         for i in range(5):
@@ -135,9 +216,25 @@ class SearchListFrame(Frame):
             right_frame.propagate(False)
             right_frame.grid(row=0, column=1, sticky="nsew")
 
-            # 오른쪽 프레임에 버튼 추가
-            button = Button(right_frame, text="정렬", bg="white", fg="black")  # 버튼을 생성합니다.
-            button.pack(expand=True, fill="both", padx=5, pady=5)  # 버튼을 오른쪽 프레임에 패킹합니다.
+            right_frame.grid_rowconfigure(0, weight=1)  # 라벨이 들어갈 곳의 column
+            right_frame.grid_rowconfigure(1, weight=1)  # 버튼이 들어갈 곳의 column
+            right_frame.grid_columnconfigure(0, weight=1)
+
+            right_frame_up = Frame(right_frame)
+            right_frame_up.propagate(False)
+            right_frame_up.grid(row=0, column=0, sticky="nsew")
+
+            right_frame_down = Frame(right_frame)
+            right_frame_down.propagate(False)
+            right_frame_down.grid(row=1, column=0, sticky="nsew")
+
+            up_button = Button(right_frame_up, text="▲", bg="white", fg="black",
+                            command=partial(self.sort_by_prfnm, self.label_list[col],"up"))  # partial을 사용하여 고유한 값을 전달합니다.
+            up_button.pack(expand=True, fill="both", padx=5, pady=5)
+
+            down_button = Button(right_frame_down, text="▼", bg="white", fg="black",
+                            command=partial(self.sort_by_prfnm, self.label_list[col],"down"))  # partial을 사용하여 고유한 값을 전달합니다.
+            down_button.pack(expand=True, fill="both", padx=5, pady=5)
 
     def setDataLog(self):
         # 캔버스 생성
