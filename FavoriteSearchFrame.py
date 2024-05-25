@@ -125,16 +125,22 @@ class SearchListFrame(Frame):
         self.bottom_frame.grid_rowconfigure(1, weight=11)
         self.bottom_frame.grid_rowconfigure(2, weight=1)
 
-        self.bottom_frame_first = Frame(self.bottom_frame, bg='gray')
-        self.bottom_frame_first.propagate(False)
+        self.bottom_frame_first1 = Frame(self.bottom_frame, bg='gray')
+        self.bottom_frame_first1.propagate(False)
+
+        self.bottom_frame_first2 = Frame(self.bottom_frame, bg='gray')
+        self.bottom_frame_first2.propagate(False)
+
+        self.bottom_frame_first = self.bottom_frame_first1
         self.bottom_frame_first.grid(row=0, column=0, sticky="nsew")
 
-        self.bottom_frame_second = Frame(self.bottom_frame)
-        self.bottom_frame_second.propagate(False)
-        self.bottom_frame_second.grid(row=1, column=0, sticky="nsew")
-
+        self.bottom_frame_second1 = Frame(self.bottom_frame)
+        self.bottom_frame_second1.propagate(False)
         self.bottom_frame_second2 = Frame(self.bottom_frame)
         self.bottom_frame_second2.propagate(False)
+
+        self.bottom_frame_second = self.bottom_frame_second1
+        self.bottom_frame_second.grid(row=1, column=0, sticky="nsew")
 
         self.bottom_frame_third = Frame(self.bottom_frame, bg='black')
         self.bottom_frame_third.propagate(False)
@@ -143,8 +149,9 @@ class SearchListFrame(Frame):
         self.setDataValue()
         self.setDataLog()
 
-        #self.setDataValue()
-        #self.setDataLog2()
+        self.setDataValue2()
+        self.setDataLog2()
+
         self.setPage()
 
     def setPage(self):
@@ -168,22 +175,26 @@ class SearchListFrame(Frame):
         self.entry_mid.bind('<Return>', self.save_page)
 
         # Right frame with a button
-        self.bottom_frame_third_right = Frame(self.bottom_frame_third, bg='black')
-        self.bottom_frame_third_right.propagate(False)
-        self.bottom_frame_third_right.grid(row=0, column=2, sticky="nsew")
+        bottom_frame_third_right = Frame(self.bottom_frame_third, bg='black')
+        bottom_frame_third_right.propagate(False)
+        bottom_frame_third_right.grid(row=0, column=2, sticky="nsew")
 
-        button_right = Button(self.bottom_frame_third_right, text="Right Button",
-                              command=lambda: self.setPageButton("right"))
+        button_right = Button(bottom_frame_third_right, text="Left Button",
+                              command=lambda: self.setPageButton("left"))
         button_right.pack()
+
+        button_right_bottom = Button(bottom_frame_third_right, text="토글",
+                                     command=lambda: self.toggle_sub_frames())
+        button_right_bottom.pack(side="right")
 
     def setDataValue(self):
         for i in range(5):
-            self.bottom_frame_first.grid_columnconfigure(i, weight=1)
-        self.bottom_frame_first.grid_rowconfigure(0, weight=1)
+            self.bottom_frame_first1.grid_columnconfigure(i, weight=1)
+        self.bottom_frame_first1.grid_rowconfigure(0, weight=1)
 
         self.frames = []  # 각 열의 프레임을 저장할 리스트
         for col in range(5):
-            frame = Frame(self.bottom_frame_first)
+            frame = Frame(self.bottom_frame_first1)
             frame.propagate(False)
             frame.grid(row=0, column=col, sticky="nsew")
             frame.grid_columnconfigure(0, weight=2)  # 라벨이 들어갈 곳의 column
@@ -231,12 +242,12 @@ class SearchListFrame(Frame):
 
     def setDataValue2(self):
         for i in range(3):
-            self.bottom_frame_first.grid_columnconfigure(i, weight=1)
-        self.bottom_frame_first.grid_rowconfigure(0, weight=1)
+            self.bottom_frame_first2.grid_columnconfigure(i, weight=1)
+        self.bottom_frame_first2.grid_rowconfigure(0, weight=1)
 
         self.frames = []  # 각 열의 프레임을 저장할 리스트
         for col in range(3):
-            frame = Frame(self.bottom_frame_first)
+            frame = Frame(self.bottom_frame_first2)
             frame.propagate(False)
             frame.grid(row=0, column=col, sticky="nsew")
             frame.grid_columnconfigure(0, weight=2)  # 라벨이 들어갈 곳의 column
@@ -244,7 +255,7 @@ class SearchListFrame(Frame):
             frame.grid_rowconfigure(0, weight=1)
             self.frames.append(frame)
 
-        label_texts = ["포스터", "공연제목", "장르", "공연장소", "공연유무"]
+        label_texts = ["포스터", "공연제목", "장르"]
         for col in range(3):
             left_frame = Frame(self.frames[col], bg="red")
             left_frame.propagate(False)
@@ -284,18 +295,18 @@ class SearchListFrame(Frame):
 
     def setDataLog(self):
         # 캔버스 생성
-        self.bottom_frame_second.grid_columnconfigure(0, weight=40)  # 캔버스의 열을 확장
-        self.bottom_frame_second.grid_columnconfigure(1, weight=1)  # 스크롤바의 열을 고정
-        self.bottom_frame_second.grid_rowconfigure(0, weight=1)  # 캔버스의 열을 확장
+        self.bottom_frame_second1.grid_columnconfigure(0, weight=40)  # 캔버스의 열을 확장
+        self.bottom_frame_second1.grid_columnconfigure(1, weight=1)  # 스크롤바의 열을 고정
+        self.bottom_frame_second1.grid_rowconfigure(0, weight=1)  # 캔버스의 열을 확장
 
-        self.bottom_frame_second_left = Frame(self.bottom_frame_second)
+        self.bottom_frame_second_left = Frame(self.bottom_frame_second1)
         self.bottom_frame_second_left.propagate(False)
         self.bottom_frame_second_left.grid(row=0, column=0, sticky="nsew")
 
         self.canvas = Canvas(self.bottom_frame_second_left)
         self.canvas.pack(side=LEFT, fill='both', expand=True)
 
-        self.bottom_frame_second_right = Frame(self.bottom_frame_second)
+        self.bottom_frame_second_right = Frame(self.bottom_frame_second1)
         self.bottom_frame_second_right.propagate(False)
         self.bottom_frame_second_right.grid(row=0, column=1, sticky="nsew")
 
@@ -314,6 +325,43 @@ class SearchListFrame(Frame):
             for col in range(5):
                 label = Label(self.scrollable_frame, text=f"", bg="white", fg="black",
                               font=("Arial", 10), width=14, height=6)
+                label.grid(row=row, column=col, padx=1, pady=1)
+
+        # 캔버스의 크기가 변경될 때 스크롤 영역을 적절하게 조정
+        self.scrollable_frame.bind("<Configure>", self.on_frame_configure)
+
+    def setDataLog2(self):
+        # 캔버스 생성
+        self.bottom_frame_second2.grid_columnconfigure(0, weight=40)  # 캔버스의 열을 확장
+        self.bottom_frame_second2.grid_columnconfigure(1, weight=1)  # 스크롤바의 열을 고정
+        self.bottom_frame_second2.grid_rowconfigure(0, weight=1)  # 캔버스의 열을 확장
+
+        self.bottom_frame_second_left = Frame(self.bottom_frame_second2)
+        self.bottom_frame_second_left.propagate(False)
+        self.bottom_frame_second_left.grid(row=0, column=0, sticky="nsew")
+
+        self.canvas = Canvas(self.bottom_frame_second_left)
+        self.canvas.pack(side=LEFT, fill='both', expand=True)
+
+        self.bottom_frame_second_right = Frame(self.bottom_frame_second2)
+        self.bottom_frame_second_right.propagate(False)
+        self.bottom_frame_second_right.grid(row=0, column=1, sticky="nsew")
+
+        # 수직 스크롤바 생성 및 캔버스와 연결
+        vscrollbar = Scrollbar(self.bottom_frame_second_right, orient='vertical', command=self.canvas.yview)
+        vscrollbar.pack(side=LEFT, fill='both')
+
+        self.canvas.configure(yscrollcommand=vscrollbar.set)
+
+        # 캔버스 내부에 위젯을 담을 프레임 생성
+        self.scrollable_frame = Frame(self.canvas)
+        self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+
+        # 프레임 내에 라벨 배치
+        for row in range(10):
+            for col in range(3):
+                label = Label(self.scrollable_frame, text=f"", bg="white", fg="black",
+                              font=("Arial", 10), width=24, height=6)
                 label.grid(row=row, column=col, padx=1, pady=1)
 
         # 캔버스의 크기가 변경될 때 스크롤 영역을 적절하게 조정
@@ -339,6 +387,26 @@ class SearchListFrame(Frame):
                 self.entry_mid.delete(0, "end")
                 self.entry_mid.insert(0, self.page)
 
+    def toggle_sub_frames(self):
+        # 현재 표시된 서브 프레임을 숨깁니다.
+        if self.bottom_frame_first == self.bottom_frame_first1:
+            type_frame = False
+        else:
+            type_frame = True
+
+        self.bottom_frame_first.grid_forget()
+        self.bottom_frame_second.grid_forget()
+
+        # 서브 프레임을 토글합니다.
+        if type_frame:
+            self.bottom_frame_first = self.bottom_frame_first1
+            self.bottom_frame_second = self.bottom_frame_second1
+        else:
+            self.bottom_frame_first = self.bottom_frame_first2
+            self.bottom_frame_second = self.bottom_frame_second2
+
+        self.bottom_frame_first.grid(row=0, column=0, sticky="nsew")
+        self.bottom_frame_second.grid(row=1, column=0, sticky="nsew")
 
 
 class ShowFavoriteSearchFrame(SearchListFrame):
