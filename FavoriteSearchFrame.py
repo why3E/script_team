@@ -7,13 +7,18 @@ import urllib.request
 from PIL import Image, ImageTk
 from functools import partial
 
+image_size = 105
+
 
 class SearchListFrame(Frame):
     def __init__(self, main_frame):
         super().__init__(main_frame)
+
+        self.type = False
+
         self.page = 1
         self.label_list = ['poster', 'prfnm', 'genrenm', 'fcltynm', 'prfstate']
-        self.data = xmlRead()
+        self.dataList = []
 
         super().grid_rowconfigure(0, weight=1)
         super().grid_rowconfigure(1, weight=9)
@@ -29,6 +34,7 @@ class SearchListFrame(Frame):
         self.setBottom()
 
     def setTop(self):
+
         self.top_frame.grid_rowconfigure(0, weight=1)
         self.top_frame.grid_columnconfigure(0, weight=1)
         self.top_frame.grid_columnconfigure(1, weight=1)
@@ -56,10 +62,6 @@ class SearchListFrame(Frame):
         self.searchButton.pack(side=LEFT)
 
     def searchData(self):
-        stdate = self.from_calender.get_date()
-        eddate = self.to_calender.get_date()
-
-        self.dataList = self.data.fetch_and_parse_show_data(stdate, eddate, 10, self.page)
 
         for widget in self.scrollable_frame.winfo_children():
             widget.destroy()
@@ -74,7 +76,7 @@ class SearchListFrame(Frame):
                         raw_data = u.read()
 
                     im = Image.open(BytesIO(raw_data))
-                    im = im.resize((100, 100))  # 이미지 크기를 조절
+                    im = im.resize((image_size, image_size))  # 이미지 크기를 조절
                     image = ImageTk.PhotoImage(im)
                     label = Label(self.scrollable_frame, image=image)
                     label.image = image  # 이미지에 대한 참조 유지를 위해 속성에 할당
@@ -131,22 +133,28 @@ class SearchListFrame(Frame):
         self.bottom_frame_second.propagate(False)
         self.bottom_frame_second.grid(row=1, column=0, sticky="nsew")
 
+        self.bottom_frame_second2 = Frame(self.bottom_frame)
+        self.bottom_frame_second2.propagate(False)
+
         self.bottom_frame_third = Frame(self.bottom_frame, bg='black')
         self.bottom_frame_third.propagate(False)
         self.bottom_frame_third.grid(row=2, column=0, sticky="nsew")
+
         self.setDataValue()
         self.setDataLog()
 
+        #self.setDataValue()
+        #self.setDataLog2()
         self.setPage()
 
     def setPage(self):
         self.bottom_frame_third.columnconfigure([0, 1, 2], weight=1)
         self.bottom_frame_third.grid_rowconfigure(0, weight=1)
 
-        self.bottom_frame_third_left = Frame(self.bottom_frame_third, bg='red')
-        self.bottom_frame_third_left.propagate(False)
-        self.bottom_frame_third_left.grid(row=0, column=0, sticky="nsew")
-        button_left = Button(self.bottom_frame_third_left, text="Left Button",
+        bottom_frame_third_left = Frame(self.bottom_frame_third, bg='red')
+        bottom_frame_third_left.propagate(False)
+        bottom_frame_third_left.grid(row=0, column=0, sticky="nsew")
+        button_left = Button(bottom_frame_third_left, text="Left Button",
                              command=lambda: self.setPageButton("left"))
         button_left.pack()
 
@@ -168,23 +176,6 @@ class SearchListFrame(Frame):
                               command=lambda: self.setPageButton("right"))
         button_right.pack()
 
-    def save_page(self, event=None):
-        self.page = int(self.entry_mid.get())
-        self.searchData()
-
-    def setPageButton(self, button):
-        if button == "right":
-            self.page += 1
-            self.searchData()
-            self.entry_mid.delete(0, "end")
-            self.entry_mid.insert(0, self.page)
-        elif button == "left":
-            if self.page > 1:
-                self.page -= 1
-                self.searchData()
-                self.entry_mid.delete(0, "end")
-                self.entry_mid.insert(0, self.page)
-
     def setDataValue(self):
         for i in range(5):
             self.bottom_frame_first.grid_columnconfigure(i, weight=1)
@@ -199,6 +190,7 @@ class SearchListFrame(Frame):
             frame.grid_columnconfigure(1, weight=1)  # 버튼이 들어갈 곳의 column
             frame.grid_rowconfigure(0, weight=1)
             self.frames.append(frame)
+
         label_texts = ["포스터", "공연제목", "장르", "공연장소", "공연유무"]
         for col in range(5):
             left_frame = Frame(self.frames[col], bg="red")
@@ -228,11 +220,66 @@ class SearchListFrame(Frame):
             right_frame_down.grid(row=1, column=0, sticky="nsew")
 
             up_button = Button(right_frame_up, text="▲", bg="white", fg="black",
-                            command=partial(self.sort_by_prfnm, self.label_list[col],"up"))  # partial을 사용하여 고유한 값을 전달합니다.
+                               command=partial(self.sort_by_prfnm, self.label_list[col],
+                                               "up"))  # partial을 사용하여 고유한 값을 전달합니다.
             up_button.pack(expand=True, fill="both", padx=5, pady=5)
 
             down_button = Button(right_frame_down, text="▼", bg="white", fg="black",
-                            command=partial(self.sort_by_prfnm, self.label_list[col],"down"))  # partial을 사용하여 고유한 값을 전달합니다.
+                                 command=partial(self.sort_by_prfnm, self.label_list[col],
+                                                 "down"))  # partial을 사용하여 고유한 값을 전달합니다.
+            down_button.pack(expand=True, fill="both", padx=5, pady=5)
+
+    def setDataValue2(self):
+        for i in range(3):
+            self.bottom_frame_first.grid_columnconfigure(i, weight=1)
+        self.bottom_frame_first.grid_rowconfigure(0, weight=1)
+
+        self.frames = []  # 각 열의 프레임을 저장할 리스트
+        for col in range(3):
+            frame = Frame(self.bottom_frame_first)
+            frame.propagate(False)
+            frame.grid(row=0, column=col, sticky="nsew")
+            frame.grid_columnconfigure(0, weight=2)  # 라벨이 들어갈 곳의 column
+            frame.grid_columnconfigure(1, weight=1)  # 버튼이 들어갈 곳의 column
+            frame.grid_rowconfigure(0, weight=1)
+            self.frames.append(frame)
+
+        label_texts = ["포스터", "공연제목", "장르", "공연장소", "공연유무"]
+        for col in range(3):
+            left_frame = Frame(self.frames[col], bg="red")
+            left_frame.propagate(False)
+            left_frame.grid(row=0, column=0, sticky="nsew")
+
+            # 왼쪽 프레임에 라벨 추가
+            label_text = label_texts[col]  # 라벨의 텍스트를 설정합니다.
+            label = Label(left_frame, text=label_text, bg="white", fg="black",
+                          font=("Arial bold", 10, "bold"))  # 라벨을 생성합니다.
+            label.pack(expand=True, fill="both", padx=5, pady=5)
+
+            right_frame = Frame(self.frames[col], bg="white")
+            right_frame.propagate(False)
+            right_frame.grid(row=0, column=1, sticky="nsew")
+
+            right_frame.grid_rowconfigure(0, weight=1)  # 라벨이 들어갈 곳의 column
+            right_frame.grid_rowconfigure(1, weight=1)  # 버튼이 들어갈 곳의 column
+            right_frame.grid_columnconfigure(0, weight=1)
+
+            right_frame_up = Frame(right_frame)
+            right_frame_up.propagate(False)
+            right_frame_up.grid(row=0, column=0, sticky="nsew")
+
+            right_frame_down = Frame(right_frame)
+            right_frame_down.propagate(False)
+            right_frame_down.grid(row=1, column=0, sticky="nsew")
+
+            up_button = Button(right_frame_up, text="▲", bg="white", fg="black",
+                               command=partial(self.sort_by_prfnm, self.label_list[col],
+                                               "up"))  # partial을 사용하여 고유한 값을 전달합니다.
+            up_button.pack(expand=True, fill="both", padx=5, pady=5)
+
+            down_button = Button(right_frame_down, text="▼", bg="white", fg="black",
+                                 command=partial(self.sort_by_prfnm, self.label_list[col],
+                                                 "down"))  # partial을 사용하여 고유한 값을 전달합니다.
             down_button.pack(expand=True, fill="both", padx=5, pady=5)
 
     def setDataLog(self):
@@ -275,7 +322,25 @@ class SearchListFrame(Frame):
     def on_frame_configure(self, event):
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
+    def save_page(self, event=None):
+        self.page = int(self.entry_mid.get())
+        self.searchData()
 
-class ShowSearchFrame(SearchListFrame):
+    def setPageButton(self, button):
+        if button == "right":
+            self.page += 1
+            self.searchData()
+            self.entry_mid.delete(0, "end")
+            self.entry_mid.insert(0, self.page)
+        elif button == "left":
+            if self.page > 1:
+                self.page -= 1
+                self.searchData()
+                self.entry_mid.delete(0, "end")
+                self.entry_mid.insert(0, self.page)
+
+
+
+class ShowFavoriteSearchFrame(SearchListFrame):
     def __init__(self, parent):
         super().__init__(parent)

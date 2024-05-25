@@ -9,7 +9,7 @@ class xmlRead:
 
     def fetch_and_parse_show_data(self, stdate, eddate, rows, cpage):
         # URL 구성
-        url = f"{self.base_url}pblprfr?service={self.api_key}&stdate={stdate}&eddate={eddate}&rows={rows}&cpage={cpage}"
+        url = f"{self.base_url}pblprfr?service={self.api_key}&stdate={stdate}&eddate={eddate}&rows={rows}&cpage={cpage}&newsql=Y"
         # 데이터 요청
         response = requests.get(url)
         if response.status_code == 200:
