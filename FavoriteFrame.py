@@ -1,26 +1,30 @@
 from tkinter import *
-from Calender import Calender
+from FavoriteSearchFrame import ShowFavoriteSearchFrame
+from InfoFrame import ShowInfoFrame
 
 
 class FavoriteFrame(Frame):
     def __init__(self, parent, main_frame):
         super().__init__(parent)
+
         self.main_frame = main_frame
         self.year = None
         self.month = None
         self.day = None
 
-        self.sub_frame1 = Frame(self, bg='dim gray')
-        self.sub_frame1.pack(side=LEFT, fill=BOTH)
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_columnconfigure(1, weight=1)
+        self.grid_rowconfigure(0, weight=1)
 
-        self.sub_frame_top = Frame(self.sub_frame1, bg="orange")
-        self.sub_frame_top.pack(side=TOP, anchor=N, fill=X)
+        # 첫 번째 서브 프레임
+        self.sub_frame1 = ShowFavoriteSearchFrame(self)
+        self.sub_frame1.propagate(False)
+        self.sub_frame1.grid(row=0, column=0, padx=5, pady=10, sticky="nsew")
 
-        self.sub_frame2 = Frame(self, bg='light blue')
-        self.sub_frame2.pack(side=LEFT, fill=BOTH, expand=True)
-
-        self.from_calender = Calender(self.sub_frame_top)
-        self.to_calender = Calender(self.sub_frame_top)
+        # 두 번째 서브 프레임
+        self.sub_frame2 = ShowInfoFrame(self)
+        self.sub_frame2.propagate(False)
+        self.sub_frame2.grid(row=0, column=1, padx=5, pady=10, sticky="nsew")
 
     def show(self):
         self.pack(side=RIGHT, fill=BOTH, expand=True)

@@ -19,6 +19,10 @@ class MainGUI:
 
         self.menu = Frame(self.frame, bg='gray')
         self.menu.pack(side=LEFT, fill=Y)
+        self.menu.grid_rowconfigure(0, weight=1)
+        self.menu.grid_rowconfigure(1, weight=1)
+        self.menu.grid_rowconfigure(2, weight=1)
+        self.menu.grid_columnconfigure(0, weight=1)
 
         self.search_frame = SearchFrame(self.window, self)
         self.favorite_frame = FavoriteFrame(self.window, self)

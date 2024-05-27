@@ -100,6 +100,7 @@ class InfoFrame(Frame):
         self.sub_frame3.grid_propagate(False)
         self.sub_frame3.grid_rowconfigure(0, weight=1)
         self.sub_frame3.grid_columnconfigure(0, weight=1)
+        self.sub_frame3.grid_columnconfigure(1, weight=9)
 
 
 class ShowInfoFrame(InfoFrame):

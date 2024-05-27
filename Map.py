@@ -51,7 +51,7 @@ class Map:
 
     def on_resize(self, event):
         self.map.delete("all")
-        # 가로 Down, 세로 Up
+
         if (self.map.winfo_height() > self.map.winfo_width() * 160 // 800):
             map_image = self.map_image.resize((800 * self.map.winfo_height() // 160, self.map.winfo_height()))
         else:
