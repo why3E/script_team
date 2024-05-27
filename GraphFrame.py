@@ -30,41 +30,25 @@ class GraphFrame(Frame):
         self.data = None
         self.is_toggle = False
 
-        self.grid_rowconfigure(0, weight=1)
-        self.grid_rowconfigure(1, weight=12)
-        self.grid_columnconfigure(0, weight=1)
-
         self.sub_frame_top = Frame(self, bg="orange")
         self.sub_frame_top.grid(row=0, column=0, sticky='nsew')
-        self.sub_frame_top.grid_rowconfigure(0, weight=1)
-        self.sub_frame_top.grid_columnconfigure(0, weight=2)
-        self.sub_frame_top.grid_columnconfigure(1, weight=1)
-        self.sub_frame_top.grid_columnconfigure(2, weight=1)
-        self.sub_frame_top.grid_columnconfigure(3, weight=1)
 
-        calender_frame = Frame(self.sub_frame_top, bg='orange')
-        calender_frame.grid(row=0, column=0, sticky='nsew')
-        calender_frame.grid_rowconfigure(0, weight=1)
-        calender_frame.grid_columnconfigure(0, weight=1)
-        calender_frame.grid_columnconfigure(1, weight=1)
-        self.from_calender = Calender(calender_frame)
+        self.calender_frame = Frame(self.sub_frame_top, bg='orange')
+        self.calender_frame.grid(row=0, column=0, sticky='nsew')
+        self.from_calender = Calender(self.calender_frame)
         self.from_calender.date_selector_frame.grid(row=0, column=0)
-        self.to_calender = Calender(calender_frame)
+        self.to_calender = Calender(self.calender_frame)
         self.to_calender.date_selector_frame.grid(row=0, column=1)
 
         self.mode_selector = Combobox(self.sub_frame_top, values=['지역', '장르'])
         self.mode_selector.grid(row=0, column=1)
 
-        checkbutton_frame = Frame(self.sub_frame_top, bg='white')
-        checkbutton_frame.grid(row=0, column=2)
-        checkbutton_frame.grid_columnconfigure(0, weight=1)
-        checkbutton_frame.grid_columnconfigure(1, weight=1)
+        self.checkbutton_frame = Frame(self.sub_frame_top, bg='white')
+        self.checkbutton_frame.grid(row=0, column=2)
         self.nmrsVar = IntVar()
-        nmrs = Checkbutton(checkbutton_frame, text='티켓 판매', variable=self.nmrsVar, command=self.toggle_graph)
-        nmrs.grid(row=0, column=0, padx=10)
+        Checkbutton(self.checkbutton_frame, text='티켓 판매', variable=self.nmrsVar, command=self.toggle_graph).grid(row=0, column=0, padx=10)
         self.prfprocntVar = IntVar()
-        prfprocnt = Checkbutton(checkbutton_frame, text='공연 횟수', variable=self.prfprocntVar, command=self.toggle_graph)
-        prfprocnt.grid(row=0, column=1, padx=10)
+        Checkbutton(self.checkbutton_frame, text='공연 횟수', variable=self.prfprocntVar, command=self.toggle_graph).grid(row=0, column=1, padx=10)
 
         image = PhotoImage(file="image/small_search.png")
         button = Button(self.sub_frame_top, image=image, command=self.draw_graph)
@@ -73,24 +57,17 @@ class GraphFrame(Frame):
 
         self.sub_frame1 = Frame(self, bg='pink')
         self.sub_frame1.grid(row=1, column=0, sticky='nsew')
-        self.sub_frame1.grid_rowconfigure(0, weight=1)
-        self.sub_frame1.grid_columnconfigure(0, weight=2)
-        self.sub_frame1.grid_columnconfigure(1, weight=1)
 
         self.bar_frame = Frame(self.sub_frame1, bg='white')
-        self.bar_frame.grid_propagate(False)
         self.bar_frame.grid(row=0, column=0, sticky='nsew')
-        self.bar_frame.grid_rowconfigure(0, weight=1)
-        self.bar_frame.grid_columnconfigure(0, weight=1)
         self.bar_canvas = Canvas(self.bar_frame, bg='white')
         self.bar_canvas.grid(row=0, column=0, sticky='nsew')
 
         self.circular_frame = Frame(self.sub_frame1, bg='white')
-        self.circular_frame.grid_propagate(False)
         self.circular_frame.grid(row=0, column=1, sticky='nsew')
-        self.circular_frame.grid_rowconfigure(0, weight=1)
-        self.circular_frame.grid_columnconfigure(0, weight=1)
         self.circular_canvas = None
+
+        self.grid_propagate_configure()
 
     def show(self):
         self.pack(side=RIGHT, fill=BOTH, expand=True)
@@ -144,9 +121,11 @@ class GraphFrame(Frame):
 
     def get_max_value(self, key):
         maxValue = 0
+
         for dv in self.data.values():
             if maxValue < int(dv[key]):
                 maxValue = int(dv[key])
+
         return maxValue
 
     def toggle_graph(self):
@@ -170,8 +149,7 @@ class GraphFrame(Frame):
         if not self.mode or not self.state:
             return
 
-        self.bar_canvas.create_line(50, self.bar_canvas.winfo_height() - 70,
-                                    self.distance - 50, self.bar_canvas.winfo_height() - 70)
+        self.bar_canvas.create_line(50, self.bar_canvas.winfo_height() - 70, self.distance - 50, self.bar_canvas.winfo_height() - 70)
         self.bar_canvas.create_line(50, self.bar_canvas.winfo_height() - 70, 50, 50)
 
         if self.state != 'prfprocnt':
@@ -209,8 +187,7 @@ class GraphFrame(Frame):
         prfdtcnt_points = []
 
         for dk, dv in self.data.items():
-            if self.state == 'prfprocnt': self.bar_canvas.create_text(20 + col * self.gap,
-                                                                      self.bar_canvas.winfo_height() - 35, text=dk)
+            if self.state == 'prfprocnt': self.bar_canvas.create_text(20 + col * self.gap, self.bar_canvas.winfo_height() - 35, text=dk)
             for k, v in dv.items():
                 if k == 'prfprocnt':
                     lh = self.get_max_value('prfprocnt')
@@ -224,13 +201,15 @@ class GraphFrame(Frame):
 
         for i in range(len(prfprocnt_points)):
             if i != len(prfprocnt_points) - 1:
-                self.bar_canvas.create_line(prfprocnt_points[i][0], prfprocnt_points[i][1], prfprocnt_points[i + 1][0],
-                                            prfprocnt_points[i + 1][1], width=3)
+                self.bar_canvas.create_line(prfprocnt_points[i][0], prfprocnt_points[i][1],
+                                            prfprocnt_points[i + 1][0], prfprocnt_points[i + 1][1],
+                                            width=3)
                 self.bar_canvas.create_line(prfdtcnt_points[i][0], prfdtcnt_points[i][1],
                                             prfdtcnt_points[i + 1][0], prfdtcnt_points[i + 1][1],
                                             fill='gray', width=3)
             self.bar_canvas.create_oval(prfprocnt_points[i][0] - 5, prfprocnt_points[i][1] - 5,
-                                        prfprocnt_points[i][0] + 5, prfprocnt_points[i][1] + 5, fill='white', width=3)
+                                        prfprocnt_points[i][0] + 5, prfprocnt_points[i][1] + 5,
+                                        fill='white', width=3)
             self.bar_canvas.create_oval(prfdtcnt_points[i][0] - 5, prfdtcnt_points[i][1] - 5,
                                         prfdtcnt_points[i][0] + 5, prfdtcnt_points[i][1] + 5,
                                         outline='gray', fill='white', width=3)
@@ -252,8 +231,7 @@ class GraphFrame(Frame):
         explode = [0.1 if i == max_index else 0 for i in range(len(shr))]
 
         fig, ax = plt.subplots(figsize=(8, 6))
-        ax.pie(shr, labels=labels, colors=colors, shadow=True, explode=explode, autopct=self.autopct_func,
-               startangle=90)
+        ax.pie(shr, labels=labels, colors=colors, shadow=True, explode=explode, autopct=self.autopct_func, startangle=90)
         ax.axis('equal')  # 원형 유지
 
         self.circular_canvas = FigureCanvasTkAgg(fig, master=self.circular_frame)
@@ -262,3 +240,33 @@ class GraphFrame(Frame):
 
     def autopct_func(self, pct):
         return f'{pct:.1f}%' if pct >= 10 else ''
+
+    def grid_propagate_configure(self):
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_rowconfigure(1, weight=12)
+        self.grid_columnconfigure(0, weight=1)
+
+        self.sub_frame_top.grid_rowconfigure(0, weight=1)
+        self.sub_frame_top.grid_columnconfigure(0, weight=2)
+        self.sub_frame_top.grid_columnconfigure(1, weight=1)
+        self.sub_frame_top.grid_columnconfigure(2, weight=1)
+        self.sub_frame_top.grid_columnconfigure(3, weight=1)
+
+        self.calender_frame.grid_rowconfigure(0, weight=1)
+        self.calender_frame.grid_columnconfigure(0, weight=1)
+        self.calender_frame.grid_columnconfigure(1, weight=1)
+
+        self.checkbutton_frame.grid_columnconfigure(0, weight=1)
+        self.checkbutton_frame.grid_columnconfigure(1, weight=1)
+
+        self.sub_frame1.grid_rowconfigure(0, weight=1)
+        self.sub_frame1.grid_columnconfigure(0, weight=2)
+        self.sub_frame1.grid_columnconfigure(1, weight=1)
+
+        self.bar_frame.grid_propagate(False)
+        self.bar_frame.grid_rowconfigure(0, weight=1)
+        self.bar_frame.grid_columnconfigure(0, weight=1)
+
+        self.circular_frame.grid_propagate(False)
+        self.circular_frame.grid_rowconfigure(0, weight=1)
+        self.circular_frame.grid_columnconfigure(0, weight=1)

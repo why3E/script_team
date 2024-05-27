@@ -6,6 +6,7 @@ import urllib.request
 from PIL import Image, ImageTk
 import webbrowser
 from Map import Map
+import pickle
 
 Facilities = ['restaurant', 'cafe', 'store', 'nolibang', 'suyu', 'parkbarrier',
               'restbarrier', 'runwbarrier', 'elevbarrier', 'parkinglot']
@@ -14,53 +15,91 @@ Facilities = ['restaurant', 'cafe', 'store', 'nolibang', 'suyu', 'parkbarrier',
 class InfoFrame(Frame):
     def __init__(self, main_frame):
         super().__init__(main_frame)
-        super().grid_rowconfigure(0, weight=1)
-        super().grid_rowconfigure(1, weight=9)
-        super().grid_rowconfigure(2, weight=3)
-        super().grid_columnconfigure(0, weight=1)
+
+        self.favorites = []
 
         self.sub_frame1 = Frame(self)
         self.sub_frame1.grid(row=0, column=0, sticky="nsew")
+
         Button(self.sub_frame1, command=self.sendEmail).grid(row=0, column=0, sticky="nsew")
-        Button(self.sub_frame1, command=self.addRemoveFavorite).grid(row=0, column=1, sticky="nsew")
-        self.sub_frame1.grid_rowconfigure(0, weight=1)
-        self.sub_frame1.grid_columnconfigure(0, weight=1)
-        self.sub_frame1.grid_columnconfigure(1, weight=1)
-        self.sub_frame1.grid_columnconfigure(2, weight=1)
 
         self.sub_frame2 = Frame(self)
-        self.sub_frame2.grid_propagate(False)
         self.sub_frame2.grid(row=1, column=0, sticky="nsew")
+
         self.informations = []
         self.information = Canvas(self.sub_frame2, bg='white')
         self.information.grid(row=0, column=0, sticky="nsew")
-        self.sub_frame2.grid_rowconfigure(0, weight=1)
-        self.sub_frame2.grid_columnconfigure(0, weight=2)
 
         self.information_xscroll = Scrollbar(self.information, orient='horizontal', command=self.information.xview)
         self.information_xscroll.pack(side="bottom", fill=X)
         self.information_yscroll = Scrollbar(self.information, orient='vertical', command=self.information.yview)
         self.information_yscroll.pack(side="right", fill=Y)
-        self.information.configure(xscrollcommand=self.information_xscroll.set,
-                                   yscrollcommand=self.information_yscroll.set)
+        self.information.configure(xscrollcommand=self.information_xscroll.set, yscrollcommand=self.information_yscroll.set)
 
         self.sub_frame3 = Frame(self, bg='white')
-        self.sub_frame3.grid_propagate(False)
         self.sub_frame3.grid(row=2, column=0, sticky="nsew")
+
+        self.grid_propagate_configure()
+
+    def is_in_favorite(self, id):
+        f = open('favorites.txt', 'rb')
+        self.favorites = pickle.load(f)
+        f.close()
+
+        if id in self.favorites:
+            return True
+        else:
+            return False
+
+    def sendEmail(self):  # 테스트, 정보 출력 용으로 사용 중
+        self.setInfo('PF132236')
+
+    def addRemoveFavorite(self, id):
+        if not id:
+            return False
+
+        if self.is_in_favorite(id):
+            self.removeFavorite(id)
+        else:
+            self.addFavorite(id)
+
+    def addFavorite(self, id):
+        f = open('favorites.txt', 'wb')
+        self.favorites.append(id)
+        pickle.dump(self.favorites, f)
+        f.close()
+
+        self.favorite_image = PhotoImage(file="image/removefavorite.png")
+        self.favorite_button.configure(image=self.favorite_image)
+
+    def removeFavorite(self, id):
+        f = open('favorites.txt', 'wb')
+        self.favorites.remove(id)
+        pickle.dump(self.favorites, f)
+        f.close()
+
+        self.favorite_image = PhotoImage(file="image/addfavorite.png")
+        self.favorite_button.configure(image=self.favorite_image)
+
+    def grid_propagate_configure(self):
+        super().grid_rowconfigure(0, weight=1)
+        super().grid_rowconfigure(1, weight=9)
+        super().grid_rowconfigure(2, weight=3)
+        super().grid_columnconfigure(0, weight=1)
+
+        self.sub_frame1.grid_propagate(False)
+        self.sub_frame1.grid_rowconfigure(0, weight=1)
+        self.sub_frame1.grid_columnconfigure(0, weight=1)
+        self.sub_frame1.grid_columnconfigure(1, weight=1)
+        self.sub_frame1.grid_columnconfigure(2, weight=1)
+
+        self.sub_frame2.grid_propagate(False)
+        self.sub_frame2.grid_rowconfigure(0, weight=1)
+        self.sub_frame2.grid_columnconfigure(0, weight=2)
+
+        self.sub_frame3.grid_propagate(False)
         self.sub_frame3.grid_rowconfigure(0, weight=1)
         self.sub_frame3.grid_columnconfigure(0, weight=1)
-
-    def sendEmail(self):
-        self.setInfo('PF132236')  # 테스트
-
-    def addRemoveFavorite(self):
-        pass
-
-    def addFavorite(self):
-        pass
-
-    def removeFavorite(self):
-        pass
 
 
 class ShowInfoFrame(InfoFrame):
@@ -70,6 +109,10 @@ class ShowInfoFrame(InfoFrame):
         self.show_id = None
         self.place_id = None
         self.data = None
+
+        self.favorite_image = None
+        self.favorite_button = Button(self.sub_frame1, command=lambda: self.addRemoveFavorite(self.show_id))
+        self.favorite_button.grid(row=0, column=1, sticky="nsew")
 
         Button(self.sub_frame1, command=self.showPlaceInfo).grid(row=0, column=2, sticky="nsew")
 
@@ -104,8 +147,7 @@ class ShowInfoFrame(InfoFrame):
                         raw_data = u.read()
                     im = Image.open(BytesIO(raw_data))
                     self.images.append(im)
-                    im = im.resize(
-                        (self.poster.winfo_width() - 19, (self.poster.winfo_width() - 19) * im.height // im.width))
+                    im = im.resize((self.poster.winfo_width() - 19, (self.poster.winfo_width() - 19) * im.height // im.width))
                     image = ImageTk.PhotoImage(im)
 
                     self.poster_refs.append(image)
@@ -126,9 +168,16 @@ class ShowInfoFrame(InfoFrame):
         self.show_id = id
         self.getInfo()
 
+        if not self.favorite_image:
+            if self.is_in_favorite(self.show_id):
+                self.favorite_image = PhotoImage(file="image/removefavorite.png")
+                self.favorite_button.configure(image=self.favorite_image)
+            else:
+                self.favorite_image = PhotoImage(file="image/addfavorite.png")
+                self.favorite_button.configure(image=self.favorite_image)
+
         for i in range(len(self.informations)):
-            self.information.create_text(5, 25 * (i + 1), anchor=W, text=self.informations[i],
-                                         font=('arial', 10, 'bold'))
+            self.information.create_text(5, 25 * (i + 1), anchor=W, text=self.informations[i], font=('arial', 10, 'bold'))
         self.information.config(scrollregion=self.information.bbox(ALL))
 
         r = 0
@@ -148,8 +197,7 @@ class ShowInfoFrame(InfoFrame):
 
         loc = 0
         for image in self.images:
-            im = image.resize(
-                (self.poster.winfo_width() - 19, (self.poster.winfo_width() - 19) * image.height // image.width))
+            im = image.resize((self.poster.winfo_width() - 19, (self.poster.winfo_width() - 19) * image.height // image.width))
             image = ImageTk.PhotoImage(im)
             self.poster.create_image(0, loc, anchor=NW, image=image)
             self.poster_refs.append(image)
@@ -174,9 +222,13 @@ class ShowInfoFrame(InfoFrame):
 
 class PlaceInfoFrame(InfoFrame):
     def __init__(self, parent):
+        super().__init__(parent)
+        self.pack(side=LEFT, fill=BOTH, expand=True)
+
         self.place_id = None
         self.status = True  # True : 공연 장소 정보, False : 편의 시설 정보
         self.data = None
+        self.favorite_image = None
         self.facility_image = {
             'restaurant': PhotoImage(file="image/restaurant.png"),
             'cafe': PhotoImage(file="image/cafe.png"),
@@ -190,10 +242,8 @@ class PlaceInfoFrame(InfoFrame):
         }
         self.map = Map()
 
-        super().__init__(parent)
-        self.pack(side=LEFT, fill=BOTH, expand=True)
-        # self.setInfo(self.place_id)
-        self.setInfo('FC001247')
+        self.favorite_button = Button(self.sub_frame1, command=lambda: self.addRemoveFavorite(self.place_id))
+        self.favorite_button.grid(row=0, column=1, sticky="nsew")
 
         self.toggle_button = Button(self.sub_frame1, command=self.toggleInfo)
         self.toggle_button.grid(row=0, column=2, sticky="nsew")
@@ -231,10 +281,17 @@ class PlaceInfoFrame(InfoFrame):
         self.place_id = id
         self.getInfo()
 
+        if not self.favorite_image:
+            if self.is_in_favorite(self.place_id):
+                self.favorite_image = PhotoImage(file="image/removefavorite.png")
+                self.favorite_button.configure(image=self.favorite_image)
+            else:
+                self.favorite_image = PhotoImage(file="image/addfavorite.png")
+                self.favorite_button.configure(image=self.favorite_image)
+
         if self.status:
             for i in range(len(self.informations)):
-                self.information.create_text(5, 25 * (i + 1), anchor=W, text=self.informations[i],
-                                             font=('arial', 10, 'bold'))
+                self.information.create_text(5, 25 * (i + 1), anchor=W, text=self.informations[i], font=('arial', 10, 'bold'))
             self.information.config(scrollregion=self.information.bbox(ALL))
         else:
             self.drawStatistics()
@@ -249,8 +306,8 @@ class PlaceInfoFrame(InfoFrame):
         self.setInfo(self.place_id)
 
     def drawStatistics(self):
-        self.information.create_line(50, self.information.winfo_height() - 70, self.information.winfo_width() - 50,
-                                     self.information.winfo_height() - 70)
+        self.information.create_line(50, self.information.winfo_height() - 70,
+                                     self.information.winfo_width() - 50, self.information.winfo_height() - 70)
         self.information.create_line(50, self.information.winfo_height() - 70, 50, 50)
 
         col = 1
@@ -258,6 +315,7 @@ class PlaceInfoFrame(InfoFrame):
         for k, v in self.facility_image.items():
             self.information.create_image(20 + col * gap, self.information.winfo_height() - 35, image=v)
             if k in self.informations:
-                self.information.create_rectangle(5 + col * gap, 120, 35 + col * gap,
-                                                  self.information.winfo_height() - 70, fill='blue')
+                self.information.create_rectangle(5 + col * gap, 120,
+                                                  35 + col * gap, self.information.winfo_height() - 70,
+                                                  fill='blue')
             col += 1

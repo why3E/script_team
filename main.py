@@ -2,8 +2,6 @@ from tkinter import *
 from SearchFrame import SearchFrame
 from FavoriteFrame import FavoriteFrame
 from GraphFrame import GraphFrame
-import xml.etree.ElementTree as ET
-import os
 import sys
 
 class MainGUI:
@@ -42,10 +40,6 @@ class MainGUI:
         self.window.mainloop()
 
     def on_closing(self):
-        if os.path.exists('osm.html'):
-            os.remove('osm.html')
-        if os.path.exists('osm.png'):
-            os.remove('osm.png')
         sys.exit(0)
 
     def create_button_with_label(self, parent, image, text, row, command):
