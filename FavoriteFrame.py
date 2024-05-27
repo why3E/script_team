@@ -22,6 +22,7 @@ class FavoriteFrame(Frame):
 
         # 두 번째 서브 프레임
         self.sub_frame2 = ShowInfoFrame(self)
+        self.sub_frame2.propagate(False)
         self.sub_frame2.grid(row=0, column=1, sticky="nsew")
 
 

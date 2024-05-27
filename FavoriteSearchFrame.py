@@ -1,6 +1,5 @@
 from tkinter import *
 from Calender import Calender
-from xmlRead import xmlRead
 from io import BytesIO
 import urllib
 import urllib.request
@@ -245,7 +244,7 @@ class SearchListFrame(Frame):
             self.bottom_frame_first2.grid_columnconfigure(i, weight=1)
         self.bottom_frame_first2.grid_rowconfigure(0, weight=1)
 
-        self.frames = []  # 각 열의 프레임을 저장할 리스트
+        self.frames_state = []  # 각 열의 프레임을 저장할 리스트
         for col in range(3):
             frame = Frame(self.bottom_frame_first2)
             frame.propagate(False)
@@ -253,11 +252,11 @@ class SearchListFrame(Frame):
             frame.grid_columnconfigure(0, weight=2)  # 라벨이 들어갈 곳의 column
             frame.grid_columnconfigure(1, weight=1)  # 버튼이 들어갈 곳의 column
             frame.grid_rowconfigure(0, weight=1)
-            self.frames.append(frame)
+            self.frames_state.append(frame)
 
-        label_texts = ["포스터", "공연제목", "장르"]
+        label_texts = ["공연시설명", "지역(시,도)", "지역(구,군)"]
         for col in range(3):
-            left_frame = Frame(self.frames[col], bg="red")
+            left_frame = Frame(self.frames_state[col], bg="red")
             left_frame.propagate(False)
             left_frame.grid(row=0, column=0, sticky="nsew")
 
@@ -267,7 +266,7 @@ class SearchListFrame(Frame):
                           font=("Arial bold", 10, "bold"))  # 라벨을 생성합니다.
             label.pack(expand=True, fill="both", padx=5, pady=5)
 
-            right_frame = Frame(self.frames[col], bg="white")
+            right_frame = Frame(self.frames_state[col], bg="white")
             right_frame.propagate(False)
             right_frame.grid(row=0, column=1, sticky="nsew")
 
@@ -323,7 +322,7 @@ class SearchListFrame(Frame):
         # 프레임 내에 라벨 배치
         for row in range(10):
             for col in range(5):
-                label = Label(self.scrollable_frame, text=f"", bg="white", fg="black",
+                label = Label(self.scrollable_frame, text=f"공연", bg="white", fg="black",
                               font=("Arial", 10), width=14, height=6)
                 label.grid(row=row, column=col, padx=1, pady=1)
 
@@ -360,7 +359,7 @@ class SearchListFrame(Frame):
         # 프레임 내에 라벨 배치
         for row in range(10):
             for col in range(3):
-                label = Label(self.scrollable_frame, text=f"", bg="white", fg="black",
+                label = Label(self.scrollable_frame, text=f"장소", bg="white", fg="black",
                               font=("Arial", 10), width=24, height=6)
                 label.grid(row=row, column=col, padx=1, pady=1)
 
