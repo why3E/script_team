@@ -7,7 +7,7 @@ import xml.etree.ElementTree as ET
 
 class MainGUI:
     def __init__(self):
-        self.window_width = 1450
+        self.window_width = 1400
         self.window_height = 700
 
         self.window = Tk()
