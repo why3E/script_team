@@ -1,7 +1,8 @@
 from tkinter import *
-from InfoFrame import *
+from InfoFrame import ShowInfoFrame
+from SearchList import ShowSearchFrame
 from xmlRead import *
-from SearchList import *
+
 
 class SearchFrame(Frame):
     def __init__(self, parent, main_frame):
@@ -12,19 +13,15 @@ class SearchFrame(Frame):
         self.month = None
         self.day = None
 
+        self.sub_frame1 = ShowSearchFrame(self)
+        self.sub_frame1.grid(row=0, column=0, padx=5, pady=10, sticky="nsew")
+
+        self.sub_frame2 = ShowInfoFrame(self)
+        self.sub_frame2.grid(row=0, column=1, padx=5, pady=10, sticky="nsew")
+
+        self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
-        self.grid_rowconfigure(0, weight=1)
-
-        # 첫 번째 서브 프레임
-        self.sub_frame1 = ShowSearchFrame(self)
-        self.sub_frame1.grid(row=0, column=0, sticky="nsew")
-
-        # 두 번째 서브 프레임
-        self.sub_frame2 = ShowInfoFrame(self)
-        self.sub_frame2.grid(row=0, column=1, sticky="nsew")
-
-
 
     def show(self):
         self.pack(side=RIGHT, fill=BOTH, expand=True)

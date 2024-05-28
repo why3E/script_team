@@ -9,7 +9,7 @@ class xmlRead:
 
     def fetch_and_parse_show_data(self, stdate, eddate, rows, cpage):
         # URL 구성
-        url = f"{self.base_url}pblprfr?service={self.api_key}&stdate={stdate}&eddate={eddate}&rows={rows}&cpage={cpage}&newsql=Y"
+        url = f"{self.base_url}pblprfr?service={self.api_key}&stdate={stdate}&eddate={eddate}&rows={rows}&cpage={cpage}"
         # 데이터 요청
         response = requests.get(url)
         if response.status_code == 200:
@@ -76,15 +76,20 @@ class xmlRead:
                 "runwbarrier": db_elem.findtext("runwbarrier"),
                 "elevbarrier": db_elem.findtext("elevbarrier"),
                 "parkinglot": db_elem.findtext("parkinglot"),
-                "prfplcnm": db_elem.findtext("prfplcnm"),
-                "mt13id": db_elem.findtext("mt13id"),
-                "seatscale": db_elem.findtext("seatscale"),
-                "stageorchat": db_elem.findtext("stageorchat"),
-                "stagepracat": db_elem.findtext("stagepracat"),
-                "stagedresat": db_elem.findtext("stagedresat"),
-                "stageoutdrat": db_elem.findtext("stageoutdrat"),
-                "disabledseatscale": db_elem.findtext("disabledseatscale"),
-                "stagearea": db_elem.findtext("stagearea")
+                "mt13s": [
+                    {
+                        "prfplcnm": mt13.findtext("prfplcnm") if mt13.find('prfplcnm') is not None else '',
+                        "mt13id": mt13.findtext("mt13id") if mt13.find('mt13id') is not None else '',
+                        "seatscale": mt13.findtext("seatscale") if mt13.find('seatscale') is not None else '',
+                        "stageorchat": mt13.findtext("stageorchat") if mt13.find('stageorchat') is not None else '',
+                        "stagepracat": mt13.findtext("stagepracat") if mt13.find('stagepracat') is not None else '',
+                        "stagedresat": mt13.findtext("stagedresat") if mt13.find('stagedresat') is not None else '',
+                        "stageoutdrat": mt13.findtext("stageoutdrat") if mt13.find('stageoutdrat') is not None else '',
+                        "disabledseatscale": mt13.findtext("disabledseatscale") if mt13.find('disabledseatscale') is not None else '',
+                        "stagearea": mt13.findtext("stagearea") if mt13.find('stagearea') is not None else ''
+                    }
+                    for mt13 in db_elem.findall('.//mt13')
+                ]
             }
             performances.append(performance_info)
         return performances
@@ -150,7 +155,62 @@ class xmlRead:
             performances.append(performance_info)
         return performances
 
+    def fetch_and_parse_region_data(self, stdate, eddate):
+        # URL 구성
+        url = f"{self.base_url}prfstsArea?service={self.api_key}&stdate={stdate}&eddate={eddate}"
+        # 데이터 요청
+        response = requests.get(url)
+        if response.status_code == 200:
+            xml_data = response.text
+        else:
+            raise Exception(f"Error fetching data: {response.status_code}")
+
+        # XML 파싱 시작
+        root = ET.fromstring(xml_data)
+        # 얻은 DB를 저장할 리스트
+        regions = []
+        for db_elem in root:
+            region_info = {
+                "nmrs": db_elem.findtext("nmrs"),  # 티켓 판매수
+                "amount": db_elem.findtext("amount"),  # 티켓 판매액
+                "prfprocnt": db_elem.findtext("prfprocnt"),  # 개막 편수
+                "prfdtcnt": db_elem.findtext("prfdtcnt"),  # 상연 횟수
+                "area": db_elem.findtext("area")  # 지역
+            }
+            regions.append(region_info)
+        return regions
+
+    def fetch_and_parse_genre_data(self, stdate, eddate):
+        # URL 구성
+        url = f"{self.base_url}prfstsCate?service={self.api_key}&stdate={stdate}&eddate={eddate}"
+        # 데이터 요청
+        response = requests.get(url)
+        if response.status_code == 200:
+            xml_data = response.text
+        else:
+            raise Exception(f"Error fetching data: {response.status_code}")
+
+        # XML 파싱 시작
+        root = ET.fromstring(xml_data)
+
+        # 얻은 DB를 저장할 리스트
+        genres = []
+        for db_elem in root:
+            genre_info = {
+                "nmrs": db_elem.findtext("nmrs"),  # 티켓 판매수
+                "amount": db_elem.findtext("amount"),  # 티켓 판매액
+                "amountshr": db_elem.findtext("amountshr"),  # 티켓 판매액 점유율
+                "prfprocnt": db_elem.findtext("prfprocnt"),  # 개막 편수
+                "cate": db_elem.findtext("cate"),  # 장르
+                "prfdtcnt": db_elem.findtext("prfdtcnt"),  # 상연 횟수
+                "nmrsshr": db_elem.findtext("nmrsshr"),  # 관객 점유율
+            }
+            genres.append(genre_info)
+        return genres
+
 # fetcher = xmlRead()
 # performances = fetcher.fetch_and_parse_show_data(stdate='20250101', eddate='20250102', rows=10000, cpage=1)
-# places = fetcher.fetch_and_parse_place_data(mt10id='FC001431')
-# details = fetcher.fetch_and_parse_show_detail_data("PF132236")
+# details = fetcher.fetch_and_parse_show_detail_data('PF132236')
+# places = fetcher.fetch_and_parse_place_data('FC001431')
+# genres = fetcher.fetch_and_parse_genre_data('20160601', '20160602')
+# regions = fetcher.fetch_and_parse_region_data('20160601', '20160602')

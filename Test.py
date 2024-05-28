@@ -1,30 +1,11 @@
-import tkinter as tk
+# http://www.kopis.or.kr/openApi/restful/pblprfr/PF132236?service={SeriveKey}&newsql=Y
 
-class MyApp:
-    def __init__(self, root):
-        self.root = root
-        self.page = ""  # 초기값 설정
+# 인증 키 : 6ecd0d874783499b86ad42078f5d7ff9
 
-        self.bottom_frame_third = tk.Frame(root)
-        self.bottom_frame_third.grid(row=0, column=0)
+from urllib.request import urlopen
 
-        self.bottom_frame_third_mid = tk.Frame(self.bottom_frame_third, bg='blue')
-        self.bottom_frame_third_mid.propagate(False)
-        self.bottom_frame_third_mid.grid(row=0, column=1, sticky="nsew")
+url = 'http://www.kopis.or.kr/openApi/restful/pblprfr/PF132236?service=6ecd0d874783499b86ad42078f5d7ff9&newsql=Y'
 
-        self.entry_mid = tk.Entry(self.bottom_frame_third_mid, width=20)
-        self.entry_mid.pack()
-        self.entry_mid.insert(0, self.page)
-        self.entry_mid.bind('<Return>', self.save_page)
+res_body = urlopen(url).read()
 
-        self.save_button = tk.Button(self.bottom_frame_third_mid, text="Save", command=self.save_page)
-        self.save_button.pack()
-
-    def save_page(self):
-        self.page = self.entry_mid.get()
-        print(f"Page value saved: {self.page}")
-
-if __name__ == "__main__":
-    root = tk.Tk()
-    app = MyApp(root)
-    root.mainloop()
+print(res_body.decode('utf-8'))

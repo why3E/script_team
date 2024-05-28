@@ -83,8 +83,7 @@ class SearchListFrame(Frame):
                     label.grid(row=row, column=col, padx=1, pady=1, sticky="nsew")
                 else:
                     label = Label(self.scrollable_frame, text=self.dataList[row][self.label_list[col]],
-                                  font=("Arial bold", 10),
-                                  bg="white", fg="black", width=14, height=7, wraplength=100)
+                                  font=("Arial bold", 10), bg="white", fg="black", width=14, height=7, wraplength=100)
                     label.grid(row=row, column=col, padx=1, pady=1, sticky="nsew")
 
     def sort_by_prfnm(self, tag, order):
@@ -97,7 +96,8 @@ class SearchListFrame(Frame):
         print(self.dataList)
         for widget in self.scrollable_frame.winfo_children():
             widget.destroy()
-            # 새로운 데이터로 라벨 생성
+
+        # 새로운 데이터로 라벨 생성
         for row in range(len(self.dataList)):
             for col in range(5):
                 if col == 0:
@@ -114,8 +114,7 @@ class SearchListFrame(Frame):
                     label.grid(row=row, column=col, padx=1, pady=1, sticky="nsew")
                 else:
                     label = Label(self.scrollable_frame, text=self.dataList[row][self.label_list[col]],
-                                  font=("Arial bold", 10),
-                                  bg="white", fg="black", width=14, height=7, wraplength=100)
+                                  font=("Arial bold", 10), bg="white", fg="black", width=14, height=7, wraplength=100)
                     label.grid(row=row, column=col, padx=1, pady=1, sticky="nsew")
 
     def setBottom(self):
@@ -178,12 +177,10 @@ class SearchListFrame(Frame):
         bottom_frame_third_right.propagate(False)
         bottom_frame_third_right.grid(row=0, column=2, sticky="nsew")
 
-        button_right = Button(bottom_frame_third_right, text="Left Button",
-                              command=lambda: self.setPageButton("left"))
+        button_right = Button(bottom_frame_third_right, text="Left Button", command=lambda: self.setPageButton("left"))
         button_right.pack()
 
-        button_right_bottom = Button(bottom_frame_third_right, text="토글",
-                                     command=lambda: self.toggle_sub_frames())
+        button_right_bottom = Button(bottom_frame_third_right, text="토글", command=lambda: self.toggle_sub_frames())
         button_right_bottom.pack(side="right")
 
     def setDataValue(self):

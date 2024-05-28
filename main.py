@@ -2,8 +2,7 @@ from tkinter import *
 from SearchFrame import SearchFrame
 from FavoriteFrame import FavoriteFrame
 from GraphFrame import GraphFrame
-
-import xml.etree.ElementTree as ET
+import sys
 
 class MainGUI:
     def __init__(self):
@@ -12,6 +11,7 @@ class MainGUI:
 
         self.window = Tk()
         self.window.title("공연 보러 가자")
+        self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
         self.window.geometry(f"{self.window_width}x{self.window_height}")
 
         self.frame = Frame(self.window, bg='dim gray')
@@ -19,6 +19,10 @@ class MainGUI:
 
         self.menu = Frame(self.frame, bg='gray')
         self.menu.pack(side=LEFT, fill=Y)
+        self.menu.grid_rowconfigure(0, weight=1)
+        self.menu.grid_rowconfigure(1, weight=1)
+        self.menu.grid_rowconfigure(2, weight=1)
+        self.menu.grid_columnconfigure(0, weight=1)
 
         self.search_frame = SearchFrame(self.window, self)
         self.favorite_frame = FavoriteFrame(self.window, self)
@@ -38,6 +42,9 @@ class MainGUI:
         self.show_search_frame()  # 초기 화면을 검색 프레임으로 설정
 
         self.window.mainloop()
+
+    def on_closing(self):
+        sys.exit(0)
 
     def create_button_with_label(self, parent, image, text, row, command):
         frame = Frame(parent)

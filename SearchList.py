@@ -11,9 +11,11 @@ from functools import partial
 class SearchListFrame(Frame):
     def __init__(self, main_frame):
         super().__init__(main_frame)
+
         self.page = 1
         self.label_list = ['poster', 'prfnm', 'genrenm', 'fcltynm', 'prfstate']
         self.data = xmlRead()
+        self.main_frame = main_frame
 
         super().grid_rowconfigure(0, weight=1)
         super().grid_rowconfigure(1, weight=9)
@@ -64,8 +66,8 @@ class SearchListFrame(Frame):
         for widget in self.scrollable_frame.winfo_children():
             widget.destroy()
 
-            # 새로운 데이터로 라벨 생성
-        print(self.dataList)
+        # 새로운 데이터로 라벨 생성
+        # print(self.dataList)
         for row in range(len(self.dataList)):
             for col in range(5):
                 if col == 0:
@@ -82,8 +84,7 @@ class SearchListFrame(Frame):
                     label.grid(row=row, column=col, padx=1, pady=1, sticky="nsew")
                 else:
                     label = Label(self.scrollable_frame, text=self.dataList[row][self.label_list[col]],
-                                  font=("Arial bold", 10),
-                                  bg="white", fg="black", width=14, height=7, wraplength=100)
+                                  font=("Arial bold", 10), bg="white", fg="black", width=14, height=7, wraplength=100)
                     label.grid(row=row, column=col, padx=1, pady=1, sticky="nsew")
 
     def sort_by_prfnm(self, tag, order):
@@ -113,8 +114,7 @@ class SearchListFrame(Frame):
                     label.grid(row=row, column=col, padx=1, pady=1, sticky="nsew")
                 else:
                     label = Label(self.scrollable_frame, text=self.dataList[row][self.label_list[col]],
-                                  font=("Arial bold", 10),
-                                  bg="white", fg="black", width=14, height=7, wraplength=100)
+                                  font=("Arial bold", 10), bg="white", fg="black", width=14, height=7, wraplength=100)
                     label.grid(row=row, column=col, padx=1, pady=1, sticky="nsew")
 
     def setBottom(self):
@@ -228,11 +228,13 @@ class SearchListFrame(Frame):
             right_frame_down.grid(row=1, column=0, sticky="nsew")
 
             up_button = Button(right_frame_up, text="▲", bg="white", fg="black",
-                            command=partial(self.sort_by_prfnm, self.label_list[col],"up"))  # partial을 사용하여 고유한 값을 전달합니다.
+                               command=partial(self.sort_by_prfnm, self.label_list[col],
+                                               "up"))  # partial을 사용하여 고유한 값을 전달합니다.
             up_button.pack(expand=True, fill="both", padx=5, pady=5)
 
             down_button = Button(right_frame_down, text="▼", bg="white", fg="black",
-                            command=partial(self.sort_by_prfnm, self.label_list[col],"down"))  # partial을 사용하여 고유한 값을 전달합니다.
+                                 command=partial(self.sort_by_prfnm, self.label_list[col],
+                                                 "down"))  # partial을 사용하여 고유한 값을 전달합니다.
             down_button.pack(expand=True, fill="both", padx=5, pady=5)
 
     def setDataLog(self):
@@ -265,8 +267,7 @@ class SearchListFrame(Frame):
         # 프레임 내에 라벨 배치
         for row in range(10):
             for col in range(5):
-                label = Label(self.scrollable_frame, text=f"", bg="white", fg="black",
-                              font=("Arial", 10), width=14, height=6)
+                label = Label(self.scrollable_frame, text=f"", bg="white", fg="black", font=("Arial", 10), width=14, height=6)
                 label.grid(row=row, column=col, padx=1, pady=1)
 
         # 캔버스의 크기가 변경될 때 스크롤 영역을 적절하게 조정

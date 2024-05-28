@@ -12,6 +12,9 @@ class Calender:
         select_date_button = Button(self.date_selector_frame, text="날짜 선택", command=lambda: self.open_date_popup())
         select_date_button.pack(side=LEFT)
 
+    def get_date(self):
+        return f'{self.year}{self.month:02}{self.day:02}'
+
     def open_date_popup(self):
         self.year = 2024
         self.month = 1
@@ -116,6 +119,3 @@ class Calender:
         except Exception as e:
             self.selected_date_label.config(text="시작일: 없음")
         top.destroy()
-
-    def get_date(self):
-        return f'{self.year}{self.month:02}{self.day:02}'
