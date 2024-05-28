@@ -84,7 +84,7 @@ class SearchListFrame(Frame):
                 else:
                     label = Label(self.scrollable_frame, text=self.dataList[row][self.label_list[col]],
                                   font=("Arial bold", 10), bg="white", fg="black", width=14, height=7, wraplength=100)
-                    label.grid(row=row, column=col, padx=1, pady=1, sticky="nsew")
+                    label.grid(row=row, column=col, pady=1, sticky="nsew")
 
     def sort_by_prfnm(self, tag, order):
         reverse_order = False
@@ -115,7 +115,7 @@ class SearchListFrame(Frame):
                 else:
                     label = Label(self.scrollable_frame, text=self.dataList[row][self.label_list[col]],
                                   font=("Arial bold", 10), bg="white", fg="black", width=14, height=7, wraplength=100)
-                    label.grid(row=row, column=col, padx=1, pady=1, sticky="nsew")
+                    label.grid(row=row, column=col, pady=1, sticky="nsew")
 
     def setBottom(self):
         self.bottom_frame.grid_columnconfigure(0, weight=1)
@@ -321,7 +321,7 @@ class SearchListFrame(Frame):
             for col in range(5):
                 label = Label(self.scrollable_frame, text=f"공연", bg="white", fg="black",
                               font=("Arial", 10), width=14, height=6)
-                label.grid(row=row, column=col, padx=1, pady=1)
+                label.grid(row=row, column=col, pady=1)
 
         # 캔버스의 크기가 변경될 때 스크롤 영역을 적절하게 조정
         self.scrollable_frame.bind("<Configure>", self.on_frame_configure)
@@ -358,7 +358,7 @@ class SearchListFrame(Frame):
             for col in range(3):
                 label = Label(self.scrollable_frame, text=f"장소", bg="white", fg="black",
                               font=("Arial", 10), width=24, height=6)
-                label.grid(row=row, column=col, padx=1, pady=1)
+                label.grid(row=row, column=col, pady=1)
 
         # 캔버스의 크기가 변경될 때 스크롤 영역을 적절하게 조정
         self.scrollable_frame.bind("<Configure>", self.on_frame_configure)
