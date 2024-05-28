@@ -1,6 +1,6 @@
 from tkinter import *
 from FavoriteSearchFrame import ShowFavoriteSearchFrame
-from InfoFrame import ShowInfoFrame
+from InfoFrame import ShowInfoFrame, PlaceInfoFrame
 
 
 class FavoriteFrame(Frame):
@@ -25,6 +25,9 @@ class FavoriteFrame(Frame):
         self.sub_frame2 = ShowInfoFrame(self)
         self.sub_frame2.propagate(False)
         self.sub_frame2.grid(row=0, column=1, padx=5, pady=10, sticky="nsew")
+
+        self.sub_frame3 = PlaceInfoFrame(self)
+        self.sub_frame3.propagate(False)
 
     def show(self):
         self.pack(side=RIGHT, fill=BOTH, expand=True)

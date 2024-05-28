@@ -2,6 +2,7 @@ from tkinter import *
 from SearchFrame import SearchFrame
 from FavoriteFrame import FavoriteFrame
 from GraphFrame import GraphFrame
+import os
 import sys
 
 class MainGUI:
@@ -44,6 +45,8 @@ class MainGUI:
         self.window.mainloop()
 
     def on_closing(self):
+        if not self.search_frame.sub_frame2.favorites:
+            os.remove('favorites.txt')
         sys.exit(0)
 
     def create_button_with_label(self, parent, image, text, row, command):

@@ -15,6 +15,8 @@ class SearchListFrame(Frame):
 
         self.type = False
 
+        self.main_frame = main_frame
+
         self.page = 1
         self.label_list = ['poster', 'prfnm', 'genrenm', 'fcltynm', 'prfstate']
         self.dataList = []
@@ -387,8 +389,12 @@ class SearchListFrame(Frame):
         # 현재 표시된 서브 프레임을 숨깁니다.
         if self.bottom_frame_first == self.bottom_frame_first1:
             type_frame = False
+            self.main_frame.sub_frame2.grid_forget()
+            self.main_frame.sub_frame3.grid(row=0, column=1, padx=5, pady=10, sticky="nsew")
         else:
             type_frame = True
+            self.main_frame.sub_frame3.grid_forget()
+            self.main_frame.sub_frame2.grid(row=0, column=1, padx=5, pady=10, sticky="nsew")
 
         self.bottom_frame_first.grid_forget()
         self.bottom_frame_second.grid_forget()

@@ -6,6 +6,7 @@ import urllib.request
 from PIL import Image, ImageTk
 import webbrowser
 from Map import Map
+import os
 import pickle
 
 Facilities = ['restaurant', 'cafe', 'store', 'nolibang', 'suyu', 'parkbarrier',
@@ -17,6 +18,11 @@ class InfoFrame(Frame):
         super().__init__(main_frame)
 
         self.favorites = []
+
+        if not os.path.exists('favorites.txt'):
+            f = open('favorites.txt', 'wb')
+            pickle.dump(self.favorites, f)
+            f.close()
 
         self.sub_frame1 = Frame(self)
         self.sub_frame1.grid(row=0, column=0, sticky="nsew")
@@ -100,7 +106,6 @@ class InfoFrame(Frame):
         self.sub_frame3.grid_propagate(False)
         self.sub_frame3.grid_rowconfigure(0, weight=1)
         self.sub_frame3.grid_columnconfigure(0, weight=1)
-        self.sub_frame3.grid_columnconfigure(1, weight=9)
 
 
 class ShowInfoFrame(InfoFrame):
@@ -217,14 +222,17 @@ class ShowInfoFrame(InfoFrame):
             place_info_frame.geometry("800x700")
             place_info_frame.title("공연 장소 정보")
 
+            place_info_frame.grid_rowconfigure(0, weight=1)
+            place_info_frame.grid_columnconfigure(0, weight=1)
+
             place_info = PlaceInfoFrame(place_info_frame)
+            place_info.grid(row=0, column=0, padx=5, pady=10, sticky="nsew")
             place_info.setInfo(self.place_id)
 
 
 class PlaceInfoFrame(InfoFrame):
     def __init__(self, parent):
         super().__init__(parent)
-        self.pack(side=LEFT, fill=BOTH, expand=True)
 
         self.place_id = None
         self.status = True  # True : 공연 장소 정보, False : 편의 시설 정보
