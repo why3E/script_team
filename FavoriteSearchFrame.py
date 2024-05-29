@@ -25,15 +25,12 @@ class SearchListFrame(Frame):
         self.label_state_list = ['fcltynm', 'adres']
         self.dataList = []
 
-        super().grid_rowconfigure(0, weight=1)
-        super().grid_rowconfigure(1, weight=9)
+        super().grid_rowconfigure(0, weight=10)
         super().grid_columnconfigure(0, weight=1)
 
-        self.top_frame = Frame(self, bg='red')
-        self.top_frame.grid(row=0, column=0, sticky="nsew")
 
-        self.bottom_frame = Frame(self, bg='green')
-        self.bottom_frame.grid(row=1, column=0, sticky="nsew")
+        self.bottom_frame = Frame(self, bg='orange')
+        self.bottom_frame.grid(row=0, column=0, sticky="nsew")
 
         file_path = 'favorites.txt'
 
@@ -44,29 +41,9 @@ class SearchListFrame(Frame):
         self.filtered_dict = self.filter_dict(self.favorites_dict)
         # 불러온 데이터 출력
 
-        self.setTop()
         self.setBottom()
 
         self.checkDict()
-
-    def setTop(self):
-
-        self.top_frame.grid_rowconfigure(0, weight=1)
-        self.top_frame.grid_columnconfigure(0, weight=1)
-        self.top_frame.grid_columnconfigure(1, weight=1)
-        self.top_frame.grid_columnconfigure(2, weight=1)
-
-        self.top_frame_left = Frame(self.top_frame, bg='red')
-        self.top_frame_left.propagate(False)
-        self.top_frame_left.grid(row=0, column=0, sticky="nsew")
-
-        self.top_frame_right = Frame(self.top_frame, bg='blue')
-        self.top_frame_right.propagate(False)
-        self.top_frame_right.grid(row=0, column=1, sticky="nsew")
-
-        self.top_frame_right_end = Frame(self.top_frame, bg='black')
-        self.top_frame_right_end.propagate(False)
-        self.top_frame_right_end.grid(row=0, column=2, sticky="nsew")
 
     def checkDict(self):
         file_path = 'favorites.txt'
@@ -147,10 +124,10 @@ class SearchListFrame(Frame):
         self.bottom_frame.grid_rowconfigure(1, weight=11)
         self.bottom_frame.grid_rowconfigure(2, weight=1)
 
-        self.bottom_frame_first1 = Frame(self.bottom_frame, bg='gray')
+        self.bottom_frame_first1 = Frame(self.bottom_frame, bg='orange')
         self.bottom_frame_first1.propagate(False)
 
-        self.bottom_frame_first2 = Frame(self.bottom_frame, bg='gray')
+        self.bottom_frame_first2 = Frame(self.bottom_frame, bg='orange')
         self.bottom_frame_first2.propagate(False)
 
         self.bottom_frame_first = self.bottom_frame_first1
@@ -164,7 +141,7 @@ class SearchListFrame(Frame):
         self.bottom_frame_second = self.bottom_frame_second1
         self.bottom_frame_second.grid(row=1, column=0, sticky="nsew")
 
-        self.bottom_frame_third = Frame(self.bottom_frame, bg='black')
+        self.bottom_frame_third = Frame(self.bottom_frame, bg='orange')
         self.bottom_frame_third.propagate(False)
         self.bottom_frame_third.grid(row=2, column=0, sticky="nsew")
 
@@ -180,7 +157,7 @@ class SearchListFrame(Frame):
         self.bottom_frame_third.columnconfigure([0, 1, 2], weight=1)
         self.bottom_frame_third.grid_rowconfigure(0, weight=1)
 
-        bottom_frame_third_left = Frame(self.bottom_frame_third, bg='red')
+        bottom_frame_third_left = Frame(self.bottom_frame_third, bg='orange')
         bottom_frame_third_left.propagate(False)
         bottom_frame_third_left.grid(row=0, column=0, sticky="nsew")
         button_left = Button(bottom_frame_third_left, text="Left Button",
@@ -188,7 +165,7 @@ class SearchListFrame(Frame):
         button_left.pack()
 
         # Middle frame with an entry box
-        self.bottom_frame_third_mid = Frame(self.bottom_frame_third, bg='blue')
+        self.bottom_frame_third_mid = Frame(self.bottom_frame_third, bg='orange')
         self.bottom_frame_third_mid.propagate(False)
         self.bottom_frame_third_mid.grid(row=0, column=1, sticky="nsew")
         self.entry_mid = Entry(self.bottom_frame_third_mid, width=2)
@@ -197,7 +174,7 @@ class SearchListFrame(Frame):
         self.entry_mid.bind('<Return>', self.save_page)
 
         # Right frame with a button
-        bottom_frame_third_right = Frame(self.bottom_frame_third, bg='black')
+        bottom_frame_third_right = Frame(self.bottom_frame_third, bg='orange')
         bottom_frame_third_right.propagate(False)
         bottom_frame_third_right.grid(row=0, column=2, sticky="nsew")
 
@@ -224,7 +201,7 @@ class SearchListFrame(Frame):
 
         label_texts = ["포스터", "공연제목", "장르", "공연장소", "공연유무"]
         for col in range(5):
-            left_frame = Frame(self.frames[col], bg="red")
+            left_frame = Frame(self.frames[col], bg="orange")
             left_frame.propagate(False)
             left_frame.grid(row=0, column=0, sticky="nsew")
 
@@ -234,7 +211,7 @@ class SearchListFrame(Frame):
                           font=("Arial bold", 10, "bold"))  # 라벨을 생성합니다.
             label.pack(expand=True, fill="both", padx=5, pady=5)
 
-            right_frame = Frame(self.frames[col], bg="white")
+            right_frame = Frame(self.frames[col], bg="orange")
             right_frame.propagate(False)
             right_frame.grid(row=0, column=1, sticky="nsew")
 
@@ -242,11 +219,11 @@ class SearchListFrame(Frame):
             right_frame.grid_rowconfigure(1, weight=1)  # 버튼이 들어갈 곳의 column
             right_frame.grid_columnconfigure(0, weight=1)
 
-            right_frame_up = Frame(right_frame)
+            right_frame_up = Frame(right_frame,bg='orange')
             right_frame_up.propagate(False)
             right_frame_up.grid(row=0, column=0, sticky="nsew")
 
-            right_frame_down = Frame(right_frame)
+            right_frame_down = Frame(right_frame,bg='orange')
             right_frame_down.propagate(False)
             right_frame_down.grid(row=1, column=0, sticky="nsew")
 
@@ -278,7 +255,7 @@ class SearchListFrame(Frame):
 
         label_texts = ["공연시설명", "지역(시,도)", "지역(구,군)"]
         for col in range(2):
-            left_frame = Frame(self.frames_state[col], bg="red")
+            left_frame = Frame(self.frames_state[col], bg="orange")
             left_frame.propagate(False)
             left_frame.grid(row=0, column=0, sticky="nsew")
 
@@ -288,7 +265,7 @@ class SearchListFrame(Frame):
                           font=("Arial bold", 10, "bold"))  # 라벨을 생성합니다.
             label.pack(expand=True, fill="both", padx=5, pady=5)
 
-            right_frame = Frame(self.frames_state[col], bg="white")
+            right_frame = Frame(self.frames_state[col], bg="orange")
             right_frame.propagate(False)
             right_frame.grid(row=0, column=1, sticky="nsew")
 
@@ -296,11 +273,11 @@ class SearchListFrame(Frame):
             right_frame.grid_rowconfigure(1, weight=1)  # 버튼이 들어갈 곳의 column
             right_frame.grid_columnconfigure(0, weight=1)
 
-            right_frame_up = Frame(right_frame)
+            right_frame_up = Frame(right_frame,bg='orange')
             right_frame_up.propagate(False)
             right_frame_up.grid(row=0, column=0, sticky="nsew")
 
-            right_frame_down = Frame(right_frame)
+            right_frame_down = Frame(right_frame,bg='orange')
             right_frame_down.propagate(False)
             right_frame_down.grid(row=1, column=0, sticky="nsew")
 
@@ -320,7 +297,7 @@ class SearchListFrame(Frame):
         self.bottom_frame_second1.grid_columnconfigure(1, weight=1)  # 스크롤바의 열을 고정
         self.bottom_frame_second1.grid_rowconfigure(0, weight=1)  # 캔버스의 열을 확장
 
-        self.bottom_frame_second_left = Frame(self.bottom_frame_second1)
+        self.bottom_frame_second_left = Frame(self.bottom_frame_second1,bg='orange')
         self.bottom_frame_second_left.propagate(False)
         self.bottom_frame_second_left.grid(row=0, column=0, sticky="nsew")
 
