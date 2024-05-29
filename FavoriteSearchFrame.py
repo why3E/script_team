@@ -5,6 +5,9 @@ import urllib
 import urllib.request
 from PIL import Image, ImageTk
 from functools import partial
+import pickle
+
+# 파일 경로 설정
 
 image_size = 105
 
@@ -16,9 +19,10 @@ class SearchListFrame(Frame):
         self.type = False
 
         self.main_frame = main_frame
-
+        self.toggleType = True
         self.page = 1
         self.label_list = ['poster', 'prfnm', 'genrenm', 'fcltynm', 'prfstate']
+        self.label_state_list = ['fcltynm', 'adres']
         self.dataList = []
 
         super().grid_rowconfigure(0, weight=1)
@@ -31,8 +35,19 @@ class SearchListFrame(Frame):
         self.bottom_frame = Frame(self, bg='green')
         self.bottom_frame.grid(row=1, column=0, sticky="nsew")
 
+        file_path = 'favorites.txt'
+
+        # 파일에서 데이터 불러오기
+        with open(file_path, 'rb') as file:
+            self.favorites_dict = pickle.load(file)
+
+        # 불러온 데이터 출력
+        print(self.favorites_dict)
+
         self.setTop()
         self.setBottom()
+
+        self.searchData()
 
     def setTop(self):
 
@@ -49,44 +64,62 @@ class SearchListFrame(Frame):
         self.top_frame_right.propagate(False)
         self.top_frame_right.grid(row=0, column=1, sticky="nsew")
 
-        self.from_calender = Calender(self.top_frame_left)
-        self.from_calender.date_selector_frame.pack(side=LEFT, pady=10)
-
-        self.to_calender = Calender(self.top_frame_right)
-        self.to_calender.date_selector_frame.pack(side=LEFT, pady=10)
-
         self.top_frame_right_end = Frame(self.top_frame, bg='black')
         self.top_frame_right_end.propagate(False)
         self.top_frame_right_end.grid(row=0, column=2, sticky="nsew")
 
-        self.searchButton = Button(self.top_frame_right_end, text="검색", command=self.searchData)
-        self.searchButton.pack(side=LEFT)
-
     def searchData(self):
-
         for widget in self.scrollable_frame.winfo_children():
             widget.destroy()
 
-            # 새로운 데이터로 라벨 생성
-        print(self.dataList)
-        for row in range(len(self.dataList)):
-            for col in range(5):
-                if col == 0:
-                    url = self.dataList[row][self.label_list[col]]
-                    with urllib.request.urlopen(url) as u:
-                        raw_data = u.read()
+        filtered_dict = self.filter_dict(self.favorites_dict)
+        print(filtered_dict)
+        # 새로운 데이터로 라벨 생성
+        for row, (k, v) in enumerate(filtered_dict.items()):
+            if self.toggleType:
+                # self.label_list를 사용하여 'PF'로 시작하는 항목들 처리
+                for col, label_key in enumerate(self.label_list):
+                    if col == 0 and 'poster' in v:
+                        url = v['poster']
+                        with urllib.request.urlopen(url) as u:
+                            raw_data = u.read()
 
-                    im = Image.open(BytesIO(raw_data))
-                    im = im.resize((image_size, image_size))  # 이미지 크기를 조절
-                    image = ImageTk.PhotoImage(im)
-                    label = Label(self.scrollable_frame, image=image)
-                    label.image = image  # 이미지에 대한 참조 유지를 위해 속성에 할당
+                        im = Image.open(BytesIO(raw_data))
+                        im = im.resize((image_size, image_size))  # 이미지 크기를 조절
+                        image = ImageTk.PhotoImage(im)
+                        label = Label(self.scrollable_frame, image=image)
+                        label.image = image  # 이미지에 대한 참조 유지를 위해 속성에 할당
 
-                    label.grid(row=row, column=col, padx=1, pady=1, sticky="nsew")
-                else:
-                    label = Label(self.scrollable_frame, text=self.dataList[row][self.label_list[col]],
-                                  font=("Arial bold", 10), bg="white", fg="black", width=14, height=7, wraplength=100)
+                        label.grid(row=row, column=col, padx=1, pady=1, sticky="nsew")
+                        label.bind("<Button-1>", partial(self.searchID, k))
+                    else:
+                        label_text = v.get(label_key, 'N/A')
+                        label = Label(self.scrollable_frame, text=label_text,
+                                      font=("Arial bold", 10), bg="white", fg="black", width=14, height=7,
+                                      wraplength=100)
+                        label.grid(row=row, column=col, pady=1, sticky="nsew")
+            else:
+                # self.label_state_list를 사용하여 'FC'로 시작하는 항목들 처리
+                for col, label_key in enumerate(self.label_state_list):
+                    label_text = v.get(label_key, 'N/A')
+                    label = Label(self.scrollable_frame, text=label_text,
+                                  font=("Arial bold", 10), bg="white", fg="black", width=36, height=7, wraplength=200)
                     label.grid(row=row, column=col, pady=1, sticky="nsew")
+                    if col == 0:
+                        label.bind("<Button-1>", partial(self.searchID, k))
+
+    def searchID(self, ID, event=None):
+        print(ID)
+        self.main_frame.sub_frame2.setInfo(ID)
+
+
+    def filter_dict(self, data):
+        if self.toggleType:
+            # 'PF'로 시작하는 항목들만
+            return {k: v for k, v in data.items() if k.startswith('PF')}
+        else:
+            # 'FC'로 시작하는 항목들만
+            return {k: v for k, v in data.items() if k.startswith('FC')}
 
     def sort_by_prfnm(self, tag, order):
         reverse_order = False
@@ -95,13 +128,17 @@ class SearchListFrame(Frame):
 
         self.dataList = sorted(self.dataList, key=lambda x: x[tag], reverse=reverse_order)
 
-        print(self.dataList)
         for widget in self.scrollable_frame.winfo_children():
             widget.destroy()
 
+        if self.toggleType:
+            num = 5
+        else:
+            num = 2
+
         # 새로운 데이터로 라벨 생성
         for row in range(len(self.dataList)):
-            for col in range(5):
+            for col in range(num):
                 if col == 0:
                     url = self.dataList[row][self.label_list[col]]
                     with urllib.request.urlopen(url) as u:
@@ -239,12 +276,13 @@ class SearchListFrame(Frame):
             down_button.pack(expand=True, fill="both", padx=5, pady=5)
 
     def setDataValue2(self):
-        for i in range(3):
+        for i in range(2):
             self.bottom_frame_first2.grid_columnconfigure(i, weight=1)
         self.bottom_frame_first2.grid_rowconfigure(0, weight=1)
 
         self.frames_state = []  # 각 열의 프레임을 저장할 리스트
-        for col in range(3):
+
+        for col in range(2):
             frame = Frame(self.bottom_frame_first2)
             frame.propagate(False)
             frame.grid(row=0, column=col, sticky="nsew")
@@ -254,7 +292,7 @@ class SearchListFrame(Frame):
             self.frames_state.append(frame)
 
         label_texts = ["공연시설명", "지역(시,도)", "지역(구,군)"]
-        for col in range(3):
+        for col in range(2):
             left_frame = Frame(self.frames_state[col], bg="red")
             left_frame.propagate(False)
             left_frame.grid(row=0, column=0, sticky="nsew")
@@ -319,11 +357,7 @@ class SearchListFrame(Frame):
         self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
 
         # 프레임 내에 라벨 배치
-        for row in range(10):
-            for col in range(5):
-                label = Label(self.scrollable_frame, text=f"공연", bg="white", fg="black",
-                              font=("Arial", 10), width=14, height=6)
-                label.grid(row=row, column=col, pady=1)
+        self.searchData()
 
         # 캔버스의 크기가 변경될 때 스크롤 영역을 적절하게 조정
         self.scrollable_frame.bind("<Configure>", self.on_frame_configure)
@@ -356,11 +390,7 @@ class SearchListFrame(Frame):
         self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
 
         # 프레임 내에 라벨 배치
-        for row in range(10):
-            for col in range(3):
-                label = Label(self.scrollable_frame, text=f"장소", bg="white", fg="black",
-                              font=("Arial", 10), width=24, height=6)
-                label.grid(row=row, column=col, pady=1)
+        self.searchData()
 
         # 캔버스의 크기가 변경될 때 스크롤 영역을 적절하게 조정
         self.scrollable_frame.bind("<Configure>", self.on_frame_configure)
@@ -401,14 +431,18 @@ class SearchListFrame(Frame):
 
         # 서브 프레임을 토글합니다.
         if type_frame:
+            self.toggleType = True
             self.bottom_frame_first = self.bottom_frame_first1
             self.bottom_frame_second = self.bottom_frame_second1
         else:
+            self.toggleType = False
             self.bottom_frame_first = self.bottom_frame_first2
             self.bottom_frame_second = self.bottom_frame_second2
 
         self.bottom_frame_first.grid(row=0, column=0, sticky="nsew")
         self.bottom_frame_second.grid(row=1, column=0, sticky="nsew")
+        print(self.toggleType)
+        self.searchData()
 
 
 class ShowFavoriteSearchFrame(SearchListFrame):
