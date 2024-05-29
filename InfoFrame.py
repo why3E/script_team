@@ -133,6 +133,7 @@ class ShowInfoFrame(InfoFrame):
         self.poster.configure(yscrollcommand=self.poster_yscroll.set)
 
         self.sub_frame2.grid_columnconfigure(1, weight=1)
+        self.sub_frame3.grid_columnconfigure(1, weight=9)
 
         self.urls = []
 
