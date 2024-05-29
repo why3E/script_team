@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter import messagebox
 from xmlRead import xmlRead
 from Calender import Calender
 from tkinter.ttk import Combobox
@@ -137,6 +138,14 @@ class GraphFrame(Frame):
         self.is_toggle = False
 
     def draw_graph(self):
+        if not self.from_calender.get_date() or not self.to_calender.get_date():
+            messagebox.showwarning('알림', '날짜가 선택되지 않았습니다.')
+            return
+
+        if self.from_calender.get_date() > self.to_calender.get_date():
+            messagebox.showwarning('알림', '종료일은 시작일보다 앞설 수 없습니다.')
+            return
+
         self.bar_canvas.delete('all')
         if self.circular_canvas:
             self.circular_canvas.get_tk_widget().delete('all')
@@ -145,9 +154,6 @@ class GraphFrame(Frame):
 
         if self.mode:
             self.setInfo(self.mode)
-
-        if not self.mode or not self.state:
-            return
 
         self.bar_canvas.create_line(50, self.bar_canvas.winfo_height() - 70, self.distance - 50, self.bar_canvas.winfo_height() - 70)
         self.bar_canvas.create_line(50, self.bar_canvas.winfo_height() - 70, 50, 50)

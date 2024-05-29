@@ -4,6 +4,10 @@ import calendar
 
 class Calender:
     def __init__(self, parent):
+        self.year = None
+        self.month = None
+        self.day = None
+
         self.date_selector_frame = Frame(parent)
 
         self.selected_date_label = Label(self.date_selector_frame, text="시작일: 없음", font=("Arial", 10))
@@ -13,6 +17,8 @@ class Calender:
         select_date_button.pack(side=LEFT)
 
     def get_date(self):
+        if not self.year or not self.month or not self.day:
+            return
         return f'{self.year}{self.month:02}{self.day:02}'
 
     def open_date_popup(self):
