@@ -68,7 +68,10 @@ class SearchListFrame(Frame):
 
         # 새로운 데이터로 라벨 생성
         # print(self.dataList)
+        Labels = [[None for _ in range(5)] for _ in range(len(self.dataList))]
+
         for row in range(len(self.dataList)):
+
             for col in range(5):
                 if col == 0:
                     url = self.dataList[row][self.label_list[col]]
@@ -78,14 +81,21 @@ class SearchListFrame(Frame):
                     im = Image.open(BytesIO(raw_data))
                     im = im.resize((100, 100))  # 이미지 크기를 조절
                     image = ImageTk.PhotoImage(im)
-                    label = Label(self.scrollable_frame, image=image)
-                    label.image = image  # 이미지에 대한 참조 유지를 위해 속성에 할당
+                    Labels[row][col] = Label(self.scrollable_frame, image=image)
+                    Labels[row][col].image = image  # 이미지에 대한 참조 유지를 위해 속성에 할당
 
-                    label.grid(row=row, column=col, padx=1, pady=1, sticky="nsew")
+                    Labels[row][col].grid(row=row, column=col, padx=1, pady=1, sticky="nsew")
+
+                    Labels[row][col].bind("<Button-1>", partial(self.searchID, self.dataList[row]["mt20id"]))
                 else:
-                    label = Label(self.scrollable_frame, text=self.dataList[row][self.label_list[col]],
-                                  font=("Arial bold", 10), bg="white", fg="black", width=14, height=7, wraplength=100)
-                    label.grid(row=row, column=col, pady=1, sticky="nsew")
+                    Labels[row][col] = Label(self.scrollable_frame, text=self.dataList[row][self.label_list[col]],
+                                             font=("Arial bold", 10), bg="white", fg="black", width=14, height=7,
+                                             wraplength=100)
+                    Labels[row][col].grid(row=row, column=col, pady=1, sticky="nsew")
+
+
+    def searchID(self, ID, event=None):
+        self.main_frame.sub_frame2.setInfo(ID)
 
     def sort_by_prfnm(self, tag, order):
         reverse_order = False
@@ -267,7 +277,8 @@ class SearchListFrame(Frame):
         # 프레임 내에 라벨 배치
         for row in range(10):
             for col in range(5):
-                label = Label(self.scrollable_frame, text=f"", bg="white", fg="black", font=("Arial", 10), width=14, height=6)
+                label = Label(self.scrollable_frame, text=f"", bg="white", fg="black", font=("Arial", 10), width=14,
+                              height=6)
                 label.grid(row=row, column=col, pady=1)
 
         # 캔버스의 크기가 변경될 때 스크롤 영역을 적절하게 조정

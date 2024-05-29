@@ -175,13 +175,12 @@ class ShowInfoFrame(InfoFrame):
         self.show_id = id
         self.getInfo()
 
-        if not self.favorite_image:
-            if self.is_in_favorite(self.show_id):
-                self.favorite_image = PhotoImage(file="image/removefavorite.png")
-                self.favorite_button.configure(image=self.favorite_image)
-            else:
-                self.favorite_image = PhotoImage(file="image/addfavorite.png")
-                self.favorite_button.configure(image=self.favorite_image)
+        if self.is_in_favorite(self.show_id):
+            self.favorite_image = PhotoImage(file="image/removefavorite.png")
+            self.favorite_button.configure(image=self.favorite_image)
+        else:
+            self.favorite_image = PhotoImage(file="image/addfavorite.png")
+            self.favorite_button.configure(image=self.favorite_image)
 
         for i in range(len(self.informations)):
             self.information.create_text(5, 25 * (i + 1), anchor=W, text=self.informations[i], font=('arial', 10, 'bold'))
@@ -291,13 +290,12 @@ class PlaceInfoFrame(InfoFrame):
         self.place_id = id
         self.getInfo()
 
-        if not self.favorite_image:
-            if self.is_in_favorite(self.place_id):
-                self.favorite_image = PhotoImage(file="image/removefavorite.png")
-                self.favorite_button.configure(image=self.favorite_image)
-            else:
-                self.favorite_image = PhotoImage(file="image/addfavorite.png")
-                self.favorite_button.configure(image=self.favorite_image)
+        if self.is_in_favorite(self.place_id):
+            self.favorite_image = PhotoImage(file="image/removefavorite.png")
+            self.favorite_button.configure(image=self.favorite_image)
+        else:
+            self.favorite_image = PhotoImage(file="image/addfavorite.png")
+            self.favorite_button.configure(image=self.favorite_image)
 
         if self.status:
             for i in range(len(self.informations)):

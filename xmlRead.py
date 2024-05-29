@@ -28,11 +28,8 @@ class xmlRead:
                 "prfnm": db_elem.findtext("prfnm"),  # 공연명
                 "genrenm": db_elem.findtext("genrenm"),  # 장르명
                 "prfstate": db_elem.findtext("prfstate"),  # 공연 상태
-                "prfpdfrom": db_elem.findtext("prfpdfrom"),  # 공연 시작일
-                "prfpdto": db_elem.findtext("prfpdto"),  # 공연 종료일
                 "poster": db_elem.findtext("poster"),  # 공연 포스터 경로
                 "fcltynm": db_elem.findtext("fcltynm"),  # 공연 시설명
-                "openrun": db_elem.findtext("openrun"),  # 오픈런 여부
             }
             performances.append(performance_info)
         return performances
