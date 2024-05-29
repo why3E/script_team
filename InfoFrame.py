@@ -17,17 +17,23 @@ class InfoFrame(Frame):
     def __init__(self, main_frame):
         super().__init__(main_frame)
 
-        self.favorites = []
+        self.favorites = {}
+        self.favorite_datas = {}
 
         if not os.path.exists('favorites.txt'):
             f = open('favorites.txt', 'wb')
             pickle.dump(self.favorites, f)
             f.close()
+        else:
+            f = open('favorites.txt', 'rb')
+            self.favorites = pickle.load(f)
+            f.close()
 
         self.sub_frame1 = Frame(self)
         self.sub_frame1.grid(row=0, column=0, sticky="nsew")
 
-        Button(self.sub_frame1, command=self.sendEmail).grid(row=0, column=0, sticky="nsew")
+        self.email_image = PhotoImage(file="image/email.png")
+        Button(self.sub_frame1, image=self.email_image, command=self.sendEmail).grid(row=0, column=0, sticky="nsew")
 
         self.sub_frame2 = Frame(self)
         self.sub_frame2.grid(row=1, column=0, sticky="nsew")
@@ -52,13 +58,13 @@ class InfoFrame(Frame):
         self.favorites = pickle.load(f)
         f.close()
 
-        if id in self.favorites:
+        if id in self.favorites.keys():
             return True
         else:
             return False
 
-    def sendEmail(self):  # 테스트, 정보 출력 용으로 사용 중
-        self.setInfo('PF132236')
+    def sendEmail(self):
+        pass
 
     def addRemoveFavorite(self, id):
         if not id:
@@ -71,7 +77,7 @@ class InfoFrame(Frame):
 
     def addFavorite(self, id):
         f = open('favorites.txt', 'wb')
-        self.favorites.append(id)
+        self.favorites[id] = self.favorite_datas
         pickle.dump(self.favorites, f)
         f.close()
 
@@ -80,7 +86,7 @@ class InfoFrame(Frame):
 
     def removeFavorite(self, id):
         f = open('favorites.txt', 'wb')
-        self.favorites.remove(id)
+        del self.favorites[id]
         pickle.dump(self.favorites, f)
         f.close()
 
@@ -107,6 +113,9 @@ class InfoFrame(Frame):
         self.sub_frame3.grid_rowconfigure(0, weight=1)
         self.sub_frame3.grid_columnconfigure(0, weight=1)
 
+    def get_favorite_dats(self):
+        return self.favorites
+
 
 class ShowInfoFrame(InfoFrame):
     def __init__(self, parent):
@@ -116,11 +125,13 @@ class ShowInfoFrame(InfoFrame):
         self.place_id = None
         self.data = None
 
-        self.favorite_image = None
-        self.favorite_button = Button(self.sub_frame1, command=lambda: self.addRemoveFavorite(self.show_id))
+        self.favorite_image = PhotoImage(file='image/favorite.png')
+        self.favorite_data_fields = ['mt20id', 'prfnm', 'genrenm', 'prfstate', 'poster', 'fcltynm']
+        self.favorite_button = Button(self.sub_frame1, image=self.favorite_image, command=lambda: self.addRemoveFavorite(self.show_id))
         self.favorite_button.grid(row=0, column=1, sticky="nsew")
 
-        Button(self.sub_frame1, command=self.showPlaceInfo).grid(row=0, column=2, sticky="nsew")
+        self.place_image = PhotoImage(file='image/map.png')
+        Button(self.sub_frame1, image=self.place_image, command=self.showPlaceInfo).grid(row=0, column=2, sticky="nsew")
 
         self.poster_refs = []
         self.poster = Canvas(self.sub_frame2)
@@ -163,6 +174,8 @@ class ShowInfoFrame(InfoFrame):
                     self.urls.append(
                         (Label(self.sub_frame3, text=url['relatenm']),
                          Label(self.sub_frame3, text=url['relateurl'], fg='blue')))
+            elif k in self.favorite_data_fields:
+                self.favorite_datas[k] = v
             else:
                 if k == 'mt10id':
                     self.place_id = v
@@ -238,6 +251,7 @@ class PlaceInfoFrame(InfoFrame):
         self.status = True  # True : 공연 장소 정보, False : 편의 시설 정보
         self.data = None
         self.favorite_image = None
+        self.favorite_data_fields = ['fcltynm', 'adres']
         self.facility_image = {
             'restaurant': PhotoImage(file="image/restaurant.png"),
             'cafe': PhotoImage(file="image/cafe.png"),
@@ -251,10 +265,12 @@ class PlaceInfoFrame(InfoFrame):
         }
         self.map = Map()
 
-        self.favorite_button = Button(self.sub_frame1, command=lambda: self.addRemoveFavorite(self.place_id))
+        self.favorite_image = PhotoImage(file='image/favorite.png')
+        self.favorite_button = Button(self.sub_frame1, image=self.favorite_image, command=lambda: self.addRemoveFavorite(self.place_id))
         self.favorite_button.grid(row=0, column=1, sticky="nsew")
 
-        self.toggle_button = Button(self.sub_frame1, command=self.toggleInfo)
+        self.toggle_image = PhotoImage(file='image/information.png')
+        self.toggle_button = Button(self.sub_frame1, image=self.toggle_image, command=self.toggleInfo)
         self.toggle_button.grid(row=0, column=2, sticky="nsew")
 
     def getInfo(self):
@@ -268,9 +284,11 @@ class PlaceInfoFrame(InfoFrame):
             if k == 'la':
                 self.latitude = v
                 continue
-            if k == 'lo':
+            elif k == 'lo':
                 self.longitude = v
                 continue
+            elif k in self.favorite_data_fields:
+                self.favorite_datas[k] = v
 
             if self.status:
                 if k not in Facilities:
@@ -301,14 +319,21 @@ class PlaceInfoFrame(InfoFrame):
             for i in range(len(self.informations)):
                 self.information.create_text(5, 25 * (i + 1), anchor=W, text=self.informations[i], font=('arial', 10, 'bold'))
             self.information.config(scrollregion=self.information.bbox(ALL))
+            self.toggle_image = PhotoImage(file="image/information.png")
+            self.toggle_button.configure(image=self.toggle_image)
         else:
             self.drawStatistics()
             self.information.config(scrollregion=self.information.bbox(ALL))
+            self.toggle_image = PhotoImage(file="image/map.png")
+            self.toggle_button.configure(image=self.toggle_image)
 
         if self.map.get_coordinate() != (self.latitude, self.longitude):
             self.map.show_map(self.sub_frame3, self.latitude, self.longitude)
 
     def toggleInfo(self):
+        if not self.place_id:
+            return
+
         self.status = not self.status
 
         self.setInfo(self.place_id)
