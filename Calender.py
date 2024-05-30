@@ -10,7 +10,7 @@ class Calender:
 
         self.date_selector_frame = Frame(parent)
 
-        self.selected_date_label = Label(self.date_selector_frame, text="시작일: 없음", font=("Arial", 10))
+        self.selected_date_label = Label(self.date_selector_frame, text="날짜: 없음", font=("Arial", 10))
         self.selected_date_label.pack(side=LEFT)
 
         select_date_button = Button(self.date_selector_frame, text="날짜 선택", command=lambda: self.open_date_popup())
@@ -123,5 +123,5 @@ class Calender:
             self.day = self.date.day  #
 
         except Exception as e:
-            self.selected_date_label.config(text="시작일: 없음")
+            self.selected_date_label.config(text="날짜: 없음")
         top.destroy()

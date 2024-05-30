@@ -42,7 +42,6 @@ class SearchListFrame(Frame):
         # 불러온 데이터 출력
 
         self.setBottom()
-
         self.checkDict()
 
     def checkDict(self):
@@ -51,6 +50,7 @@ class SearchListFrame(Frame):
         with open(file_path, 'rb') as file:
             self.favorites_dict = pickle.load(file)
         self.filtered_dict = self.filter_dict(self.favorites_dict)
+        self.searchData(self.filtered_dict)
 
     def searchData(self, Dict):
 
@@ -319,7 +319,7 @@ class SearchListFrame(Frame):
         self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
 
         # 프레임 내에 라벨 배치
-        self.searchData(self.filtered_dict)
+        self.checkDict()
 
         # 캔버스의 크기가 변경될 때 스크롤 영역을 적절하게 조정
         self.scrollable_frame.bind("<Configure>", self.on_frame_configure)
@@ -352,7 +352,7 @@ class SearchListFrame(Frame):
         self.canvas2.create_window((0, 0), window=self.scrollable_frame2, anchor="nw")
 
         # 프레임 내에 라벨 배치
-        self.searchData(self.filtered_dict)
+        self.checkDict()
 
         # 캔버스의 크기가 변경될 때 스크롤 영역을 적절하게 조정
         self.scrollable_frame2.bind("<Configure>", self.on_frame_configure)
@@ -367,13 +367,13 @@ class SearchListFrame(Frame):
     def setPageButton(self, button):
         if button == "right":
             self.page += 1
-            self.searchData(self.filtered_dict)
+            self.checkDict()
             self.entry_mid.delete(0, "end")
             self.entry_mid.insert(0, self.page)
         elif button == "left":
             if self.page > 1:
                 self.page -= 1
-                self.searchData(self.filtered_dict)
+                self.checkDict()
                 self.entry_mid.delete(0, "end")
                 self.entry_mid.insert(0, self.page)
 
@@ -405,7 +405,6 @@ class SearchListFrame(Frame):
         self.bottom_frame_second.grid(row=1, column=0, sticky="nsew")
 
         self.checkDict()
-        self.searchData(self.filtered_dict)
 
 
 class ShowFavoriteSearchFrame(SearchListFrame):

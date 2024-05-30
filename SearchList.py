@@ -21,10 +21,10 @@ class SearchListFrame(Frame):
         super().grid_rowconfigure(1, weight=9)
         super().grid_columnconfigure(0, weight=1)
 
-        self.top_frame = Frame(self, bg='red')
+        self.top_frame = Frame(self, bg='orange')
         self.top_frame.grid(row=0, column=0, sticky="nsew")
 
-        self.bottom_frame = Frame(self, bg='green')
+        self.bottom_frame = Frame(self, bg='orange')
         self.bottom_frame.grid(row=1, column=0, sticky="nsew")
 
         self.setTop()
@@ -36,11 +36,11 @@ class SearchListFrame(Frame):
         self.top_frame.grid_columnconfigure(1, weight=1)
         self.top_frame.grid_columnconfigure(2, weight=1)
 
-        self.top_frame_left = Frame(self.top_frame, bg='orange')
+        self.top_frame_left = Frame(self.top_frame, bg='dark orange')
         self.top_frame_left.propagate(False)
         self.top_frame_left.grid(row=0, column=0, sticky="nsew")
 
-        self.top_frame_right = Frame(self.top_frame, bg='orange')
+        self.top_frame_right = Frame(self.top_frame, bg='dark orange')
         self.top_frame_right.propagate(False)
         self.top_frame_right.grid(row=0, column=1, sticky="nsew")
 
@@ -50,7 +50,7 @@ class SearchListFrame(Frame):
         self.to_calender = Calender(self.top_frame_right)
         self.to_calender.date_selector_frame.pack(side=LEFT, pady=10)
 
-        self.top_frame_right_end = Frame(self.top_frame, bg='orange')
+        self.top_frame_right_end = Frame(self.top_frame, bg='dark orange')
         self.top_frame_right_end.propagate(False)
         self.top_frame_right_end.grid(row=0, column=2, sticky="nsew")
 
@@ -108,6 +108,7 @@ class SearchListFrame(Frame):
         for widget in self.scrollable_frame.winfo_children():
             widget.destroy()
             # 새로운 데이터로 라벨 생성
+        Labels = [[None for _ in range(5)] for _ in range(len(self.dataList))]
         for row in range(len(self.dataList)):
             for col in range(5):
                 if col == 0:
@@ -118,14 +119,17 @@ class SearchListFrame(Frame):
                     im = Image.open(BytesIO(raw_data))
                     im = im.resize((100, 100))  # 이미지 크기를 조절
                     image = ImageTk.PhotoImage(im)
-                    label = Label(self.scrollable_frame, image=image)
-                    label.image = image  # 이미지에 대한 참조 유지를 위해 속성에 할당
+                    Labels[row][col] = Label(self.scrollable_frame, image=image)
+                    Labels[row][col].image = image  # 이미지에 대한 참조 유지를 위해 속성에 할당
 
-                    label.grid(row=row, column=col, padx=1, pady=1, sticky="nsew")
+                    Labels[row][col].grid(row=row, column=col, padx=1, pady=1, sticky="nsew")
+
+                    Labels[row][col].bind("<Button-1>", partial(self.searchID, self.dataList[row]["mt20id"]))
                 else:
-                    label = Label(self.scrollable_frame, text=self.dataList[row][self.label_list[col]],
-                                  font=("Arial bold", 10), bg="white", fg="black", width=14, height=7, wraplength=100)
-                    label.grid(row=row, column=col, pady=1, sticky="nsew")
+                    Labels[row][col] = Label(self.scrollable_frame, text=self.dataList[row][self.label_list[col]],
+                                             font=("Arial bold", 10), bg="white", fg="black", width=14, height=7,
+                                             wraplength=100)
+                    Labels[row][col].grid(row=row, column=col, pady=1, sticky="nsew")
 
     def setBottom(self):
         self.bottom_frame.grid_columnconfigure(0, weight=1)
@@ -137,7 +141,7 @@ class SearchListFrame(Frame):
         self.bottom_frame_first.propagate(False)
         self.bottom_frame_first.grid(row=0, column=0, sticky="nsew")
 
-        self.bottom_frame_second = Frame(self.bottom_frame)
+        self.bottom_frame_second = Frame(self.bottom_frame,bg='orange')
         self.bottom_frame_second.propagate(False)
         self.bottom_frame_second.grid(row=1, column=0, sticky="nsew")
 
@@ -253,14 +257,14 @@ class SearchListFrame(Frame):
         self.bottom_frame_second.grid_columnconfigure(1, weight=1)  # 스크롤바의 열을 고정
         self.bottom_frame_second.grid_rowconfigure(0, weight=1)  # 캔버스의 열을 확장
 
-        self.bottom_frame_second_left = Frame(self.bottom_frame_second)
+        self.bottom_frame_second_left = Frame(self.bottom_frame_second,bg='orange')
         self.bottom_frame_second_left.propagate(False)
         self.bottom_frame_second_left.grid(row=0, column=0, sticky="nsew")
 
         self.canvas = Canvas(self.bottom_frame_second_left)
         self.canvas.pack(side=LEFT, fill='both', expand=True)
 
-        self.bottom_frame_second_right = Frame(self.bottom_frame_second)
+        self.bottom_frame_second_right = Frame(self.bottom_frame_second,bg='orange')
         self.bottom_frame_second_right.propagate(False)
         self.bottom_frame_second_right.grid(row=0, column=1, sticky="nsew")
 
@@ -271,7 +275,7 @@ class SearchListFrame(Frame):
         self.canvas.configure(yscrollcommand=vscrollbar.set)
 
         # 캔버스 내부에 위젯을 담을 프레임 생성
-        self.scrollable_frame = Frame(self.canvas)
+        self.scrollable_frame = Frame(self.canvas,bg='orange')
         self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
 
         # 프레임 내에 라벨 배치

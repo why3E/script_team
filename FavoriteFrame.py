@@ -31,6 +31,7 @@ class FavoriteFrame(Frame):
 
     def show(self):
         self.pack(side=RIGHT, fill=BOTH, expand=True)
+        self.sub_frame1.checkDict()
 
     def hide(self):
         self.pack_forget()

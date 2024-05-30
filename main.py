@@ -15,10 +15,10 @@ class MainGUI:
         self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
         self.window.geometry(f"{self.window_width}x{self.window_height}")
 
-        self.frame = Frame(self.window, bg='dim gray')
+        self.frame = Frame(self.window)
         self.frame.pack(side=LEFT, fill=Y)
 
-        self.menu = Frame(self.frame, bg='gray')
+        self.menu = Frame(self.frame, bg='#F0F0F0')
         self.menu.pack(side=LEFT, fill=Y)
         self.menu.grid_rowconfigure(0, weight=1)
         self.menu.grid_rowconfigure(1, weight=1)
