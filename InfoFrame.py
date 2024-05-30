@@ -19,6 +19,7 @@ class InfoFrame(Frame):
 
         self.favorites = {}
         self.favorite_datas = {}
+        self.in_favorite = False
 
         if not os.path.exists('favorites.txt'):
             f = open('favorites.txt', 'wb')
@@ -59,8 +60,10 @@ class InfoFrame(Frame):
         f.close()
 
         if id in self.favorites.keys():
+            self.in_favorite = True
             return True
         else:
+            self.in_favorite = False
             return False
 
     def sendEmail(self):
@@ -118,6 +121,37 @@ class InfoFrame(Frame):
 
 
 class ShowInfoFrame(InfoFrame):
+    fields = {'mt20id': '공연ID',
+              'prfnm': '공연명',
+              'prfpdfrom': '공연시작일',
+              'prfpdto': '공연종료일',
+              'fcltynm': '공연시설명',
+              'prfcast': '공연출연진',
+              'prfcrew': '공연제작진',
+              'prfruntime': '공연 런타임',
+              'prfage': '공연 관람 연령',
+              'entrpsnm': '기획제작사',
+              'entrpsnmP': '제작사',
+              'entrpsnmA': '기획사',
+              'entrpsnmH': '주최',
+              'entrpsnmS': '주관',
+              'pcseguidance': '티켓가격',
+              'sty': '줄거리',
+              'area': '지역',
+              'genrenm': '장르',
+              'openrun': '오픈런',
+              'visit': '내한',
+              'child': '아동',
+              'daehakro': '대학로',
+              'festival': '축제',
+              'musicallicense': '뮤지컬 라이센스',
+              'musicalcreate': '뮤지컬 창작',
+              'updatedate': '최종수정일',
+              'prfstate': '공연상태',
+              'mt10id': '공연시설ID',
+              'dtguidance': '공연시간'
+              }
+
     def __init__(self, parent):
         super().__init__(parent)
 
@@ -173,13 +207,14 @@ class ShowInfoFrame(InfoFrame):
                 for url in v:
                     self.urls.append(
                         (Label(self.sub_frame3, text=url['relatenm']),
-                         Label(self.sub_frame3, text=url['relateurl'], fg='blue')))
-            elif k in self.favorite_data_fields:
-                self.favorite_datas[k] = v
+                         Label(self.sub_frame3, text=url['relateurl'])))
             else:
                 if k == 'mt10id':
                     self.place_id = v
-                self.informations.append(k + ' : ' + str(v))
+                if k in self.favorite_data_fields:
+                    self.favorite_datas[k] = v
+                if k != 'poster' and v != ' ':
+                    self.informations.append(ShowInfoFrame.fields[k] + ' : ' + str(v))
 
     def setInfo(self, id):
         self.information.delete("all")
@@ -195,8 +230,17 @@ class ShowInfoFrame(InfoFrame):
             self.favorite_image = PhotoImage(file="image/addfavorite.png")
             self.favorite_button.configure(image=self.favorite_image)
 
+        h = 0
         for i in range(len(self.informations)):
-            self.information.create_text(5, 25 * (i + 1), anchor=W, text=self.informations[i], font=('arial', 10, 'bold'))
+            if '\n' in self.informations[i]:
+                h += 1
+                informations = self.informations[i].split('\n')
+                for information in informations:
+                    if information != '\r':
+                        self.information.create_text(5, 25 * (i + h + 1), anchor=W, text=information, font=('arial', 10, 'bold'))
+                        h += 1
+            else:
+                self.information.create_text(5, 25 * (i + h + 1), anchor=W, text=self.informations[i], font=('arial', 10, 'bold'))
         self.information.config(scrollregion=self.information.bbox(ALL))
 
         r = 0
@@ -244,6 +288,29 @@ class ShowInfoFrame(InfoFrame):
 
 
 class PlaceInfoFrame(InfoFrame):
+    fields = {
+        'fcltynm': '공연시설명',
+        'mt10id': '공연시설ID',
+        'mt13cnt': '공연장 수',
+        'fcltychartr': '시설특성',
+        'opende': '개관연도',
+        'seatscale': '객석 수',
+        'telno': '전화번호',
+        'relateurl': '홈페이지',
+        'adres': '주소',
+        'la': '위도',
+        'lo': '경도',
+        'prfplcnm': '공연장명',
+        'mt13id': '고유식별ID',
+        'seatscale': '좌석규모',
+        'stageorchat': '무대시설_오케스트라피트',
+        'stagepracat': '무대시설_연습실',
+        'stagedresat': '무대시설_분장실',
+        'stageoutdrat': '무대시설_야외공연장',
+        'disabledseatscale': '장애인시설_관객석',
+        'stagearea': '무대시설_무대넓이'
+    }
+
     def __init__(self, parent):
         super().__init__(parent)
 
@@ -276,9 +343,8 @@ class PlaceInfoFrame(InfoFrame):
     def getInfo(self):
         self.informations.clear()
 
-        if not self.data:
-            fetcher = xmlRead()
-            self.data = fetcher.fetch_and_parse_place_data(self.place_id)[0]
+        fetcher = xmlRead()
+        self.data = fetcher.fetch_and_parse_place_data(self.place_id)[0]
 
         for k, v in self.data.items():
             if k == 'la':
@@ -291,13 +357,14 @@ class PlaceInfoFrame(InfoFrame):
                 self.favorite_datas[k] = v
 
             if self.status:
-                if k not in Facilities:
+                if k not in Facilities and v != ' ':
                     if k == 'mt13s':
                         for mt13d in v:
                             for mt13k, mt13v in mt13d.items():
-                                self.informations.append(mt13k + ' : ' + mt13v)
+                                if mt13v != ' ':
+                                    self.informations.append(PlaceInfoFrame.fields[mt13k] + ' : ' + mt13v)
                     else:
-                        self.informations.append(k + ' : ' + v)
+                        self.informations.append(PlaceInfoFrame.fields[k] + ' : ' + v)
             else:
                 if k in Facilities and v != 'N':
                     self.informations.append(k)
@@ -315,9 +382,12 @@ class PlaceInfoFrame(InfoFrame):
             self.favorite_image = PhotoImage(file="image/addfavorite.png")
             self.favorite_button.configure(image=self.favorite_image)
 
+        h = 0
         if self.status:
             for i in range(len(self.informations)):
-                self.information.create_text(5, 25 * (i + 1), anchor=W, text=self.informations[i], font=('arial', 10, 'bold'))
+                if '공연장명' in self.informations[i]:
+                    h += 1
+                self.information.create_text(5, 25 * (i + h + 1), anchor=W, text=self.informations[i], font=('arial', 10, 'bold'))
             self.information.config(scrollregion=self.information.bbox(ALL))
             self.toggle_image = PhotoImage(file="image/information.png")
             self.toggle_button.configure(image=self.toggle_image)
