@@ -17,6 +17,9 @@ class SearchFrame(Frame):
         self.sub_frame1.grid(row=0, column=0, padx=5, pady=10, sticky="nsew")
 
         self.sub_frame2 = ShowInfoFrame(self)
+        self.sub_frame2.email_button.configure(bg='orange')
+        self.sub_frame2.favorite_button.configure(bg='orange')
+        self.sub_frame2.place_button.configure(bg='orange')
         self.sub_frame2.grid(row=0, column=1, padx=5, pady=10, sticky="nsew")
 
         self.grid_rowconfigure(0, weight=1)

@@ -31,10 +31,10 @@ class GraphFrame(Frame):
         self.data = None
         self.is_toggle = False
 
-        self.sub_frame_top = Frame(self, bg='lightgray')
+        self.sub_frame_top = Frame(self, bg='light green')
         self.sub_frame_top.grid(row=0, column=0, pady=5, sticky='nsew')
 
-        self.calender_frame = Frame(self.sub_frame_top, bg='lightgray')
+        self.calender_frame = Frame(self.sub_frame_top, bg='light green')
         self.calender_frame.grid(row=0, column=0, sticky='nsew')
         self.from_calender = Calender(self.calender_frame)
         self.from_calender.date_selector_frame.grid(row=0, column=0)
@@ -44,7 +44,7 @@ class GraphFrame(Frame):
         self.mode_selector = Combobox(self.sub_frame_top, values=['지역', '장르'])
         self.mode_selector.grid(row=0, column=1)
 
-        self.checkbutton_frame = Frame(self.sub_frame_top, bg='lightgray')
+        self.checkbutton_frame = Frame(self.sub_frame_top, bg='light green')
         self.checkbutton_frame.grid(row=0, column=2)
         self.nmrsVar = IntVar()
         Checkbutton(self.checkbutton_frame, text='티켓 판매', variable=self.nmrsVar, command=self.toggle_graph).grid(row=0, column=0, padx=10)
