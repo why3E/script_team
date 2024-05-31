@@ -23,10 +23,16 @@ class FavoriteFrame(Frame):
 
         # 두 번째 서브 프레임
         self.sub_frame2 = ShowInfoFrame(self)
+        self.sub_frame2.email_button.configure(bg='light sky blue')
+        self.sub_frame2.favorite_button.configure(bg='light sky blue')
+        self.sub_frame2.place_button.configure(bg='light sky blue')
         self.sub_frame2.propagate(False)
         self.sub_frame2.grid(row=0, column=1, padx=5, pady=10, sticky="nsew")
 
         self.sub_frame3 = PlaceInfoFrame(self)
+        self.sub_frame3.email_button.configure(bg='light sky blue')
+        self.sub_frame3.favorite_button.configure(bg='light sky blue')
+        self.sub_frame3.toggle_button.configure(bg='light sky blue')
         self.sub_frame3.propagate(False)
 
     def show(self):

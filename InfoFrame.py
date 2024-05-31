@@ -34,7 +34,8 @@ class InfoFrame(Frame):
         self.sub_frame1.grid(row=0, column=0, sticky="nsew")
 
         self.email_image = PhotoImage(file="image/email.png")
-        Button(self.sub_frame1, image=self.email_image, command=self.sendEmail).grid(row=0, column=0, sticky="nsew")
+        self.email_button = Button(self.sub_frame1, image=self.email_image, command=self.sendEmail)
+        self.email_button.grid(row=0, column=0, sticky="nsew")
 
         self.sub_frame2 = Frame(self)
         self.sub_frame2.grid(row=1, column=0, sticky="nsew")
@@ -165,7 +166,8 @@ class ShowInfoFrame(InfoFrame):
         self.favorite_button.grid(row=0, column=1, sticky="nsew")
 
         self.place_image = PhotoImage(file='image/map.png')
-        Button(self.sub_frame1, image=self.place_image, command=self.showPlaceInfo).grid(row=0, column=2, sticky="nsew")
+        self.place_button = Button(self.sub_frame1, image=self.place_image, command=self.showPlaceInfo)
+        self.place_button.grid(row=0, column=2, sticky="nsew")
 
         self.poster_refs = []
         self.poster = Canvas(self.sub_frame2)
@@ -207,7 +209,7 @@ class ShowInfoFrame(InfoFrame):
                 for url in v:
                     self.urls.append(
                         (Label(self.sub_frame3, text=url['relatenm']),
-                         Label(self.sub_frame3, text=url['relateurl'])))
+                         Label(self.sub_frame3, text=url['relateurl'], fg='blue')))
             else:
                 if k == 'mt10id':
                     self.place_id = v
@@ -283,6 +285,9 @@ class ShowInfoFrame(InfoFrame):
             place_info_frame.grid_columnconfigure(0, weight=1)
 
             place_info = PlaceInfoFrame(place_info_frame)
+            place_info.email_button.configure(bg='orange')
+            place_info.favorite_button.configure(bg='orange')
+            place_info.toggle_button.configure(bg='orange')
             place_info.grid(row=0, column=0, padx=5, pady=10, sticky="nsew")
             place_info.setInfo(self.place_id)
 
