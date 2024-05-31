@@ -45,17 +45,17 @@ class SearchListFrame(Frame):
         self.top_frame_right.grid(row=0, column=1, sticky="nsew")
 
         self.from_calender = Calender(self.top_frame_left)
-        self.from_calender.date_selector_frame.pack(side=LEFT, pady=10)
+        self.from_calender.date_selector_frame.place(x=50, y=25)
 
         self.to_calender = Calender(self.top_frame_right)
-        self.to_calender.date_selector_frame.pack(side=LEFT, pady=10)
+        self.to_calender.date_selector_frame.place(x=50, y=25)
 
         self.top_frame_right_end = Frame(self.top_frame, bg='dark orange')
         self.top_frame_right_end.propagate(False)
         self.top_frame_right_end.grid(row=0, column=2, sticky="nsew")
 
         self.searchButton = Button(self.top_frame_right_end, text="검색", command=self.searchData)
-        self.searchButton.pack(side=LEFT)
+        self.searchButton.place(x=50, y=25)
 
     def searchData(self):
         stdate = self.from_calender.get_date()
