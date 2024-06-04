@@ -24,6 +24,16 @@ class SearchListFrame(Frame):
         self.label_state_list = ['fcltynm', 'adres']
         self.dataList = []
 
+        # Define the button size
+        button_width = 50
+        button_height = 50
+        original_image = Image.open("image/face_state.png")
+        resized_image = original_image.resize((button_width, button_height), Image.LANCZOS)
+        self.image_state = ImageTk.PhotoImage(resized_image)
+        original_image = Image.open("image/face_show.png")
+        resized_image = original_image.resize((button_width, button_height), Image.LANCZOS)
+        self.image_show = ImageTk.PhotoImage(resized_image)
+
         super().grid_rowconfigure(0, weight=1)
         super().grid_rowconfigure(1, weight=10)
         super().grid_columnconfigure(0, weight=1)
@@ -33,7 +43,7 @@ class SearchListFrame(Frame):
 
         self.top_s_frame.grid_propagate(False)
 
-        self.top_s_frame.rowconfigure(0,weight=1)
+        self.top_s_frame.rowconfigure(0, weight=1)
         self.top_s_frame.grid_columnconfigure(0, weight=1)
 
         canvas = Canvas(self.top_s_frame, bg='light sky blue')
@@ -180,16 +190,16 @@ class SearchListFrame(Frame):
         bottom_frame_third_left = Frame(self.bottom_frame_third, bg='light sky blue')
         bottom_frame_third_left.propagate(False)
         bottom_frame_third_left.grid(row=0, column=0, sticky="nsew")
-        button_left = Button(bottom_frame_third_left, text="Left Button",
+        button_left = Button(bottom_frame_third_left, text="◀",
                              command=lambda: self.setPageButton("left"))
-        button_left.pack()
+        button_left.pack(side="right")
 
         # Middle frame with an entry box
         self.bottom_frame_third_mid = Frame(self.bottom_frame_third, bg='light sky blue')
         self.bottom_frame_third_mid.propagate(False)
         self.bottom_frame_third_mid.grid(row=0, column=1, sticky="nsew")
         self.entry_mid = Entry(self.bottom_frame_third_mid, width=2)
-        self.entry_mid.pack()
+        self.entry_mid.place(x=90, y=15)
         self.entry_mid.insert(0, self.page)
         self.entry_mid.bind('<Return>', self.save_page)
 
@@ -198,11 +208,14 @@ class SearchListFrame(Frame):
         bottom_frame_third_right.propagate(False)
         bottom_frame_third_right.grid(row=0, column=2, sticky="nsew")
 
-        button_right = Button(bottom_frame_third_right, text="Left Button", command=lambda: self.setPageButton("left"))
-        button_right.pack()
+        button_right = Button(bottom_frame_third_right, text="▶", command=lambda: self.setPageButton("left"))
+        button_right.pack(side="left")
 
-        button_right_bottom = Button(bottom_frame_third_right, text="토글", command=lambda: self.toggle_sub_frames())
-        button_right_bottom.pack(side="right")
+        # Create the button with the resized image and fixed size
+        self.button_right_bottom = Button(bottom_frame_third_right, image=self.image_show,
+                                          command=lambda: self.toggle_sub_frames(),
+                                          width=50, height=50, compound="center")
+        self.button_right_bottom.pack(side="right")
 
     def setDataValue(self):
         for i in range(5):
@@ -416,11 +429,12 @@ class SearchListFrame(Frame):
             self.toggleType = True
             self.bottom_frame_first = self.bottom_frame_first1
             self.bottom_frame_second = self.bottom_frame_second1
+            self.button_right_bottom.config(image=self.image_show)
         else:
             self.toggleType = False
             self.bottom_frame_first = self.bottom_frame_first2
             self.bottom_frame_second = self.bottom_frame_second2
-
+            self.button_right_bottom.config(image=self.image_state)
         self.bottom_frame_first.grid(row=0, column=0, sticky="nsew")
         self.bottom_frame_second.grid(row=1, column=0, sticky="nsew")
 

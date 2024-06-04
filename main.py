@@ -5,6 +5,7 @@ from GraphFrame import GraphFrame
 import os
 import sys
 
+
 class MainGUI:
     def __init__(self):
         self.window_width = 1450
@@ -15,10 +16,10 @@ class MainGUI:
         self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
         self.window.geometry(f"{self.window_width}x{self.window_height}")
 
-        self.frame = Frame(self.window)
+        self.frame = Frame(self.window, bg='white')
         self.frame.pack(side=LEFT, fill=Y)
 
-        self.menu = Frame(self.frame, bg='#F0F0F0')
+        self.menu = Frame(self.frame)
         self.menu.pack(side=LEFT, fill=Y)
         self.menu.grid_rowconfigure(0, weight=1)
         self.menu.grid_rowconfigure(1, weight=1)
@@ -53,7 +54,7 @@ class MainGUI:
         frame = Frame(parent)
         frame.grid(row=row, column=0, padx=45, pady=self.window_height / 30)
 
-        button = Button(frame, image=image, compound=TOP, width=150, height=150, command=command)
+        button = Button(frame, image=image, compound=TOP, width=150, height=150, command=command, bg='gray')
         button.pack()
 
         label = Label(frame, text=text, font=("Arial", 12), compound=TOP)

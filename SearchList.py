@@ -169,16 +169,16 @@ class SearchListFrame(Frame):
         self.bottom_frame_third_left = Frame(self.bottom_frame_third, bg='orange')
         self.bottom_frame_third_left.propagate(False)
         self.bottom_frame_third_left.grid(row=0, column=0, sticky="nsew")
-        button_left = Button(self.bottom_frame_third_left, text="Left Button",
+        button_left = Button(self.bottom_frame_third_left, text="◀",
                              command=lambda: self.setPageButton("left"))
-        button_left.pack()
+        button_left.pack(side='right')
 
         # Middle frame with an entry box
         self.bottom_frame_third_mid = Frame(self.bottom_frame_third, bg='orange')
         self.bottom_frame_third_mid.propagate(False)
         self.bottom_frame_third_mid.grid(row=0, column=1, sticky="nsew")
         self.entry_mid = Entry(self.bottom_frame_third_mid, width=2)
-        self.entry_mid.pack()
+        self.entry_mid.place(x=90, y=15)
         self.entry_mid.insert(0, self.page)
         self.entry_mid.bind('<Return>', self.save_page)
 
@@ -187,9 +187,9 @@ class SearchListFrame(Frame):
         self.bottom_frame_third_right.propagate(False)
         self.bottom_frame_third_right.grid(row=0, column=2, sticky="nsew")
 
-        button_right = Button(self.bottom_frame_third_right, text="Right Button",
+        button_right = Button(self.bottom_frame_third_right, text="▶",
                               command=lambda: self.setPageButton("right"))
-        button_right.pack()
+        button_right.pack(side='left')
 
     def save_page(self, event=None):
         self.page = int(self.entry_mid.get())
