@@ -1,4 +1,6 @@
 from tkinter import *
+from tkinter import messagebox
+
 from Calender import Calender
 from xmlRead import xmlRead
 from io import BytesIO
@@ -58,6 +60,14 @@ class SearchListFrame(Frame):
         self.searchButton.place(x=50, y=25)
 
     def searchData(self):
+        if not self.from_calender.get_date() or not self.to_calender.get_date():
+            messagebox.showwarning('알림', '날짜가 선택되지 않았습니다.')
+            return
+
+        if self.from_calender.get_date() > self.to_calender.get_date():
+            messagebox.showwarning('알림', '종료일은 시작일보다 앞설 수 없습니다.')
+            return
+
         stdate = self.from_calender.get_date()
         eddate = self.to_calender.get_date()
 
@@ -92,7 +102,6 @@ class SearchListFrame(Frame):
                                              font=("Arial bold", 10), bg="white", fg="black", width=14, height=7,
                                              wraplength=100)
                     Labels[row][col].grid(row=row, column=col, pady=1, sticky="nsew")
-
 
     def searchID(self, ID, event=None):
         self.main_frame.sub_frame2.setInfo(ID)
@@ -141,7 +150,7 @@ class SearchListFrame(Frame):
         self.bottom_frame_first.propagate(False)
         self.bottom_frame_first.grid(row=0, column=0, sticky="nsew")
 
-        self.bottom_frame_second = Frame(self.bottom_frame,bg='orange')
+        self.bottom_frame_second = Frame(self.bottom_frame, bg='orange')
         self.bottom_frame_second.propagate(False)
         self.bottom_frame_second.grid(row=1, column=0, sticky="nsew")
 
@@ -233,11 +242,11 @@ class SearchListFrame(Frame):
             right_frame.grid_rowconfigure(1, weight=1)  # 버튼이 들어갈 곳의 column
             right_frame.grid_columnconfigure(0, weight=1)
 
-            right_frame_up = Frame(right_frame,bg="orange")
+            right_frame_up = Frame(right_frame, bg="orange")
             right_frame_up.propagate(False)
             right_frame_up.grid(row=0, column=0, sticky="nsew")
 
-            right_frame_down = Frame(right_frame,bg="orange")
+            right_frame_down = Frame(right_frame, bg="orange")
             right_frame_down.propagate(False)
             right_frame_down.grid(row=1, column=0, sticky="nsew")
 
@@ -257,14 +266,14 @@ class SearchListFrame(Frame):
         self.bottom_frame_second.grid_columnconfigure(1, weight=1)  # 스크롤바의 열을 고정
         self.bottom_frame_second.grid_rowconfigure(0, weight=1)  # 캔버스의 열을 확장
 
-        self.bottom_frame_second_left = Frame(self.bottom_frame_second,bg='orange')
+        self.bottom_frame_second_left = Frame(self.bottom_frame_second, bg='white')
         self.bottom_frame_second_left.propagate(False)
         self.bottom_frame_second_left.grid(row=0, column=0, sticky="nsew")
 
         self.canvas = Canvas(self.bottom_frame_second_left)
         self.canvas.pack(side=LEFT, fill='both', expand=True)
 
-        self.bottom_frame_second_right = Frame(self.bottom_frame_second,bg='orange')
+        self.bottom_frame_second_right = Frame(self.bottom_frame_second, bg='orange')
         self.bottom_frame_second_right.propagate(False)
         self.bottom_frame_second_right.grid(row=0, column=1, sticky="nsew")
 
@@ -275,7 +284,7 @@ class SearchListFrame(Frame):
         self.canvas.configure(yscrollcommand=vscrollbar.set)
 
         # 캔버스 내부에 위젯을 담을 프레임 생성
-        self.scrollable_frame = Frame(self.canvas,bg='orange')
+        self.scrollable_frame = Frame(self.canvas, bg='orange')
         self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
 
         # 프레임 내에 라벨 배치
