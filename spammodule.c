@@ -2,28 +2,28 @@
 #include <stdlib.h>
 #include <string.h>
 
-// ºñ±³ ÇÔ¼ö Á¤ÀÇ
+// ë¹„êµ í•¨ìˆ˜ ì •ì˜
 int compare_strings(const void* a, const void* b) {
     return strcmp(*(const char**)a, *(const char**)b);
 }
 
-// ¸®½ºÆ®¸¦ ¹Ş¾Æ Á¤·ÄÇÏ´Â ÇÔ¼ö
+// ë¦¬ìŠ¤íŠ¸ë¥¼ ë°›ì•„ ì •ë ¬í•˜ëŠ” í•¨ìˆ˜
 static PyObject*
 spam_sort(PyObject* self, PyObject* args)
 {
     PyObject* listObj;
     int descending;
 
-    // ¸®½ºÆ® °´Ã¼¿Í ³»¸²Â÷¼ø ¿©ºÎ¸¦ ÆÄ½ÌÇÕ´Ï´Ù.
+    // ë¦¬ìŠ¤íŠ¸ ê°ì²´ì™€ ì •ë ¬ê¸°ì¤€ ê°€ì ¸ì˜¤ê¸°.
     if (!PyArg_ParseTuple(args, "O!p", &PyList_Type, &listObj, &descending))
         return NULL;
 
-    // ¸®½ºÆ®ÀÇ ±æÀÌ¸¦ °¡Á®¿É´Ï´Ù.
+    // ë¦¬ìŠ¤íŠ¸ì˜ ì›ì†Œ ê°œìˆ˜.
     Py_ssize_t len = PyList_Size(listObj);
     if (len < 0)
         return NULL;
 
-    // ¸®½ºÆ®¸¦ C ¹®ÀÚ¿­ ¹è¿­·Î º¹»çÇÕ´Ï´Ù.
+    // ë¦¬ìŠ¤íŠ¸ë¥¼ C ë¬¸ìì—´ ë°°ì—´ë¡œ ë³µì‚¬.
     const char** strings = (const char**)malloc(len * sizeof(const char*));
     if (!strings)
         return PyErr_NoMemory();
@@ -42,10 +42,10 @@ spam_sort(PyObject* self, PyObject* args)
         }
     }
 
-    // qsort¸¦ »ç¿ëÇÏ¿© Á¤·ÄÇÕ´Ï´Ù.
+    // qsortë¥¼ ì‚¬ìš©í•˜ì—¬ ì •ë ¬.
     qsort(strings, len, sizeof(const char*), compare_strings);
 
-    // ¸¸¾à ³»¸²Â÷¼øÀÌ¶ó¸é ¸®½ºÆ®¸¦ µÚÁı½À´Ï´Ù.
+    // ë‚´ë¦¼ì°¨ìˆœì¼ë•Œ ì—­ìˆœìœ¼ë¡œ
     if (descending) {
         for (Py_ssize_t i = 0; i < len / 2; i++) {
             const char* temp = strings[i];
@@ -54,7 +54,7 @@ spam_sort(PyObject* self, PyObject* args)
         }
     }
 
-    // Á¤·ÄµÈ ¹®ÀÚ¿­À» Python ¸®½ºÆ®·Î º¯È¯ÇÕ´Ï´Ù.
+    // ì •ë ¬ëœ ë¬¸ìì—´ì„ Python ë¦¬ìŠ¤íŠ¸ë¡œ ë³€í™˜.
     PyObject* sortedList = PyList_New(len);
     if (!sortedList) {
         free(strings);
@@ -73,18 +73,18 @@ spam_sort(PyObject* self, PyObject* args)
 
     free(strings);
 
-    return sortedList; // Á¤·ÄµÈ ¸®½ºÆ®¸¦ ¹İÈ¯ÇÕ´Ï´Ù.
+    return sortedList;
 }
 
 static PyMethodDef SpamMethods[] = {
     { "sort", spam_sort, METH_VARARGS, "Sort a list of strings. Pass True for descending order and False for ascending order." },
-    { NULL, NULL, 0, NULL } // ¹è¿­ÀÇ ³¡À» ³ªÅ¸³À´Ï´Ù.
+    { NULL, NULL, 0, NULL }
 };
 
 static struct PyModuleDef spammodule = {
     PyModuleDef_HEAD_INIT,
-    "spam",               // ¸ğµâ ÀÌ¸§
-    "It is test module.", // ¸ğµâ ¼³¸íÀ» Àû´Â ºÎºĞ, ¸ğµâÀÇ __doc__¿¡ ÀúÀåµË´Ï´Ù.
+    "spam",
+    "It is test module.",
     -1, SpamMethods
 };
 
