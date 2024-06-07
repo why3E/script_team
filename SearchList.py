@@ -8,7 +8,7 @@ import urllib
 import urllib.request
 from PIL import Image, ImageTk
 from functools import partial
-
+import spam
 
 class SearchListFrame(Frame):
     def __init__(self, main_frame):
@@ -72,7 +72,10 @@ class SearchListFrame(Frame):
         eddate = self.to_calender.get_date()
 
         self.dataList = self.data.fetch_and_parse_show_data(stdate, eddate, 10, self.page)
+        self.draw_canvas()
 
+
+    def draw_canvas(self):
         for widget in self.scrollable_frame.winfo_children():
             widget.destroy()
 
@@ -111,34 +114,16 @@ class SearchListFrame(Frame):
         if order == "down":
             reverse_order = True
 
-        self.dataList = sorted(self.dataList, key=lambda x: x[tag], reverse=reverse_order)
+        tag_values = [item[tag] for item in self.dataList]
 
-        print(self.dataList)
-        for widget in self.scrollable_frame.winfo_children():
-            widget.destroy()
-            # 새로운 데이터로 라벨 생성
-        Labels = [[None for _ in range(5)] for _ in range(len(self.dataList))]
-        for row in range(len(self.dataList)):
-            for col in range(5):
-                if col == 0:
-                    url = self.dataList[row][self.label_list[col]]
-                    with urllib.request.urlopen(url) as u:
-                        raw_data = u.read()
+        # 2. 그 값을 정렬한다.
+        sorted_tag_values = spam.sort(tag_values, reverse_order)
 
-                    im = Image.open(BytesIO(raw_data))
-                    im = im.resize((100, 100))  # 이미지 크기를 조절
-                    image = ImageTk.PhotoImage(im)
-                    Labels[row][col] = Label(self.scrollable_frame, image=image)
-                    Labels[row][col].image = image  # 이미지에 대한 참조 유지를 위해 속성에 할당
+        # 3. 정렬된 값을 기준으로 원래 리스트를 정렬한다.
+        self.dataList = sorted(self.dataList, key=lambda x: sorted_tag_values.index(x[tag]))
 
-                    Labels[row][col].grid(row=row, column=col, padx=1, pady=1, sticky="nsew")
+        self.draw_canvas()
 
-                    Labels[row][col].bind("<Button-1>", partial(self.searchID, self.dataList[row]["mt20id"]))
-                else:
-                    Labels[row][col] = Label(self.scrollable_frame, text=self.dataList[row][self.label_list[col]],
-                                             font=("Arial bold", 10), bg="white", fg="black", width=14, height=7,
-                                             wraplength=100)
-                    Labels[row][col].grid(row=row, column=col, pady=1, sticky="nsew")
 
     def setBottom(self):
         self.bottom_frame.grid_columnconfigure(0, weight=1)
