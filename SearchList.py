@@ -115,9 +115,10 @@ class SearchListFrame(Frame):
             reverse_order = True
 
         tag_values = [item[tag] for item in self.dataList]
-
+        print(tag_values)
         # 2. 그 값을 정렬한다.
         sorted_tag_values = spam.sort(tag_values, reverse_order)
+        print("Sorted tag values:", sorted_tag_values)  # 디버깅을 위해 반환 값 출력
 
         # 3. 정렬된 값을 기준으로 원래 리스트를 정렬한다.
         self.dataList = sorted(self.dataList, key=lambda x: sorted_tag_values.index(x[tag]))
