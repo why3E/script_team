@@ -8,6 +8,7 @@ import webbrowser
 from Map import Map
 import os
 import pickle
+from msg import msg
 
 Facilities = ['restaurant', 'cafe', 'store', 'nolibang', 'suyu', 'parkbarrier',
               'restbarrier', 'runwbarrier', 'elevbarrier', 'parkinglot']
@@ -122,13 +123,13 @@ class InfoFrame(Frame):
 
 
 class ShowInfoFrame(InfoFrame):
-    fields = {'mt20id': '공연ID',
+    fields = {'mt20id': '공연 ID',
               'prfnm': '공연명',
-              'prfpdfrom': '공연시작일',
-              'prfpdto': '공연종료일',
+              'prfpdfrom': '공연 시작일',
+              'prfpdto': '공연 종료일',
               'fcltynm': '공연시설명',
-              'prfcast': '공연출연진',
-              'prfcrew': '공연제작진',
+              'prfcast': '공연 출연진',
+              'prfcrew': '공연 제작진',
               'prfruntime': '공연 런타임',
               'prfage': '공연 관람 연령',
               'entrpsnm': '기획제작사',
@@ -136,7 +137,7 @@ class ShowInfoFrame(InfoFrame):
               'entrpsnmA': '기획사',
               'entrpsnmH': '주최',
               'entrpsnmS': '주관',
-              'pcseguidance': '티켓가격',
+              'pcseguidance': '티켓 가격',
               'sty': '줄거리',
               'area': '지역',
               'genrenm': '장르',
@@ -147,10 +148,10 @@ class ShowInfoFrame(InfoFrame):
               'festival': '축제',
               'musicallicense': '뮤지컬 라이센스',
               'musicalcreate': '뮤지컬 창작',
-              'updatedate': '최종수정일',
-              'prfstate': '공연상태',
-              'mt10id': '공연시설ID',
-              'dtguidance': '공연시간'
+              'updatedate': '최종 수정일',
+              'prfstate': '공연 상태',
+              'mt10id': '공연시설 ID',
+              'dtguidance': '공연 시간'
               }
 
     def __init__(self, parent):
@@ -183,6 +184,27 @@ class ShowInfoFrame(InfoFrame):
         self.sub_frame3.grid_columnconfigure(1, weight=9)
 
         self.urls = []
+
+    def sendEmail(self):
+        if self.data:
+            message = msg('공연 '+self.data['prfnm']+' 상세 정보')
+
+            msgtext = ''
+            msgtext += (ShowInfoFrame.fields['mt20id'] + ' : ' + self.data['mt20id'] + '<br>')
+            msgtext += (ShowInfoFrame.fields['mt10id'] + ' : ' + self.data['mt10id'] + '<br><br>')
+            msgtext += (ShowInfoFrame.fields['genrenm'] + ' : ' + self.data['genrenm'] + '<br>')
+            msgtext += (ShowInfoFrame.fields['prfstate'] + ' : ' + self.data['prfstate'] + '<br><br>')
+            msgtext += (ShowInfoFrame.fields['fcltynm'] + ' : ' + self.data['fcltynm'] + '<br>')
+            msgtext += (ShowInfoFrame.fields['prfruntime'] + ' : ' + self.data['prfruntime'] + '<br>')
+            msgtext += (ShowInfoFrame.fields['prfage'] + ' : ' + self.data['prfage'] + '<br><br>')
+            msgtext += (ShowInfoFrame.fields['prfpdfrom'] + ' : ' + self.data['prfpdfrom'] + '<br>')
+            msgtext += (ShowInfoFrame.fields['prfpdto'] + ' : ' + self.data['prfpdto'] + '<br><br>')
+            for d in self.data['relates']:
+                msgtext += (d['relatenm'] + ' : ' + d['relateurl'] + '<br>')
+
+            message.attach_show_details(self.data['prfnm'], msgtext, self.data['poster'])
+
+            message.send()
 
     def getInfo(self):
         self.place_id = None
@@ -285,9 +307,9 @@ class ShowInfoFrame(InfoFrame):
             place_info_frame.grid_columnconfigure(0, weight=1)
 
             place_info = PlaceInfoFrame(place_info_frame)
-            place_info.email_button.configure(bg='orange')
-            place_info.favorite_button.configure(bg='orange')
-            place_info.toggle_button.configure(bg='orange')
+            place_info.email_button.configure(bg=self.email_button['bg'])
+            place_info.favorite_button.configure(bg=self.email_button['bg'])
+            place_info.toggle_button.configure(bg=self.email_button['bg'])
             place_info.grid(row=0, column=0, padx=5, pady=10, sticky="nsew")
             place_info.setInfo(self.place_id)
 
@@ -295,9 +317,9 @@ class ShowInfoFrame(InfoFrame):
 class PlaceInfoFrame(InfoFrame):
     fields = {
         'fcltynm': '공연시설명',
-        'mt10id': '공연시설ID',
+        'mt10id': '공연시설 ID',
         'mt13cnt': '공연장 수',
-        'fcltychartr': '시설특성',
+        'fcltychartr': '시설 특성',
         'opende': '개관연도',
         'seatscale': '객석 수',
         'telno': '전화번호',
@@ -306,8 +328,8 @@ class PlaceInfoFrame(InfoFrame):
         'la': '위도',
         'lo': '경도',
         'prfplcnm': '공연장명',
-        'mt13id': '고유식별ID',
-        'seatscale': '좌석규모',
+        'mt13id': '고유식별 ID',
+        'seatscale': '좌석 규모',
         'stageorchat': '무대시설_오케스트라피트',
         'stagepracat': '무대시설_연습실',
         'stagedresat': '무대시설_분장실',
@@ -344,6 +366,29 @@ class PlaceInfoFrame(InfoFrame):
         self.toggle_image = PhotoImage(file='image/information.png')
         self.toggle_button = Button(self.sub_frame1, image=self.toggle_image, command=self.toggleInfo)
         self.toggle_button.grid(row=0, column=2, sticky="nsew")
+
+    def sendEmail(self):
+
+        if self.data:
+            message = msg(self.data['fcltynm']+' 상세 정보')
+
+            msgtext = ''
+            msgtext += (PlaceInfoFrame.fields['mt10id'] + ' : ' + self.data['mt10id'] + '<br><br>')
+            msgtext += (PlaceInfoFrame.fields['fcltychartr'] + ' : ' + self.data['fcltychartr'] + '<br><br>')
+            msgtext += (PlaceInfoFrame.fields['adres'] + ' : ' + self.data['adres'] + '<br><br>')
+            msgtext += ('레스토랑 : ' + self.data['restaurant'] + '<br>')
+            msgtext += ('카페 : ' + self.data['cafe'] + '<br>')
+            msgtext += ('놀이방 : ' + self.data['nolibang'] + '<br>')
+            msgtext += ('수유실 : ' + self.data['suyu'] + '<br>')
+            msgtext += ('주차장 : ' + self.data['parkinglot'] + '<br>')
+            msgtext += ('장애인 주차장 : ' + self.data['parkbarrier'] + '<br>')
+            msgtext += ('장애인 화장실 : ' + self.data['restbarrier'] + '<br>')
+            msgtext += ('장애인 엘리베이터 : ' + self.data['elevbarrier'] + '<br><br>')
+            msgtext += (PlaceInfoFrame.fields['relateurl'] + ' : ' + self.data['relateurl'] + '<br>')
+
+            message.attach_place_details(self.data['fcltynm'], msgtext)
+
+            message.send()
 
     def getInfo(self):
         self.informations.clear()
