@@ -2,6 +2,7 @@ from tkinter import *
 from SearchFrame import SearchFrame
 from FavoriteFrame import FavoriteFrame
 from GraphFrame import GraphFrame
+from telegram import Telegram
 import os
 import sys
 
@@ -42,6 +43,8 @@ class MainGUI:
 
         self.current_frame = self.graph_frame  # 임시, 타이틀 화면 추가 시 해당 프레임으로 설정
         self.show_search_frame()  # 초기 화면을 검색 프레임으로 설정
+
+        Telegram()
 
         self.window.mainloop()
 
