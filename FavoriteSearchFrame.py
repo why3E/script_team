@@ -5,6 +5,7 @@ import urllib.request
 from PIL import Image, ImageTk
 from functools import partial
 import pickle
+import spam
 
 # 파일 경로 설정
 
@@ -140,12 +141,33 @@ class SearchListFrame(Frame):
             return {k: v for k, v in data.items() if k.startswith('FC')}
 
     def sort_by_prfnm(self, tag, order):
-        reverse_order = (order == "down")
-        # 정렬된 튜플 리스트 생성
-        sorted_items = sorted(self.filtered_dict.items(), key=lambda x: x[1][tag], reverse=reverse_order)
-        # 정렬된 튜플 리스트를 다시 딕셔너리로 변환
-        self.filtered_dict = dict(sorted_items)
-        # UI 갱신
+        reverse_order = False
+        if order == "down":
+            reverse_order = True
+        if self.toggleType:
+            values_list = [value for value in self.filtered_dict.values()]
+            tag_values = [item[tag] for item in values_list]
+
+            sorted_tag_values = spam.sort(tag_values, reverse_order)
+
+            values_list = sorted(values_list, key=lambda x: sorted_tag_values.index(x[tag]))
+
+            self.filtered_dict = {item['mt20id']: item for item in values_list}
+        else:
+            values_list = [value for value in self.filtered_dict.values()]
+            tag_values = [item[tag] for item in values_list]
+
+            sorted_tag_values = spam.sort(tag_values, reverse_order)
+
+            values_list = sorted(values_list, key=lambda x: sorted_tag_values.index(x[tag]))
+
+            new_filtered_dict = {}
+            for fclty in values_list:
+                for key, value in self.filtered_dict.items():
+                    if value['fcltynm'] == fclty['fcltynm']:
+                        new_filtered_dict[key] = value
+            self.filtered_dict = new_filtered_dict
+
         self.searchData(self.filtered_dict)
 
     def setBottom(self):
